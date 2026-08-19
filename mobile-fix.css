@@ -37,8 +37,8 @@ img,svg,canvas{max-width:100%}
   .top-copy p{font-size:11px;-webkit-line-clamp:2}
   .top-badge{font-size:8px;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  /* Nur so viel Platz unten wie fuer die feste Navigation wirklich noetig ist. */
-  .desktop-shell{display:block;padding:0 14px 78px}
+  /* Inhalt bleibt lesbar, aber die feste Leiste selbst sitzt ohne Aussenabstand am Rand. */
+  .desktop-shell{display:block;padding:0 14px 70px}
   .content-head{margin-top:8px;margin-bottom:12px}
   .content-head h2{font-size:28px}
 
@@ -90,10 +90,11 @@ img,svg,canvas{max-width:100%}
   .modal textarea{min-height:88px}
   .close{position:sticky;float:right;top:0;z-index:2;background:#252532;border-radius:999px;width:36px;height:36px;line-height:1}
 
-  .bottom-nav{left:8px;right:8px;bottom:max(6px,env(safe-area-inset-bottom));grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:5px;border-radius:14px}
+  /* Kein sichtbarer Abstand mehr links, rechts oder unten. Safe-Area liegt innerhalb der Leiste. */
+  .bottom-nav{left:0!important;right:0!important;bottom:0!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;padding:5px 5px max(5px,env(safe-area-inset-bottom))!important;border-radius:16px 16px 0 0!important;border-left:0!important;border-right:0!important;border-bottom:0!important}
   .bottom-nav button{min-width:0;min-height:43px;padding:5px 2px;font-size:8px;line-height:1.05}
   .bottom-nav button span{font-size:17px}
-  footer{padding-left:14px;padding-right:14px;padding-bottom:82px}
+  footer{padding-left:14px;padding-right:14px;padding-bottom:74px}
   .seo-links{padding-left:14px;padding-right:14px}
 }
 
