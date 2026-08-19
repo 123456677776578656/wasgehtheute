@@ -1,0 +1,10 @@
+window.WGH_CONFIG={
+  contactEmail:"",
+  formEndpoint:"",
+  organizerEndpoint:"",
+  pushSubscribeEndpoint:"",
+  authEndpoint:"",
+  customDomain:"",
+  analyticsNamespace:"wasgehtheute-ch",
+  adminMode:"static-preview"
+};
