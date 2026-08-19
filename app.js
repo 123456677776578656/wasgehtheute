@@ -129,10 +129,10 @@ document.getElementById('lastUpdated').textContent=new Intl.DateTimeFormat('de-C
 async function updateGlobalCounter(){
   const el=document.getElementById('globalViewCount');
   try{
-    const r=await fetch('https://api.counterapi.dev/v1/wasgehtheute-ch/pageviews/up',{cache:'no-store'});
+    const r=await fetch('https://counterapi.com/api/wasgehtheute.ch/view/homepage',{cache:'no-store'});
     if(!r.ok)throw new Error('counter');
     const data=await r.json();
-    const value=data.count ?? data.value ?? data.result ?? '–';
+    const value=data.value ?? '–';
     el.textContent=Number.isFinite(Number(value))?Number(value).toLocaleString('de-CH'):value;
   }catch(err){el.textContent='–';el.title='Zähler momentan nicht erreichbar';}
 }
