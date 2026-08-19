@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://123456677776578656.github.io/wasgehtheute/sitemap.xml
