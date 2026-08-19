@@ -103,7 +103,11 @@
   </main>
 </div>
 
-<footer><b>WasGehtHeute<span class="pink">.ch</span></b><p>Rheintal · Werdenberg · Sargans · Wildhaus · Zürich · Chur/Graubünden</p></footer>
+<footer>
+  <b>WasGehtHeute<span class="pink">.ch</span></b>
+  <p>Rheintal · Werdenberg · Sargans · Wildhaus · Zürich · Chur/Graubünden</p>
+  <p><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="haftung.html">Haftungshinweis</a></p>
+</footer>
 
 <nav class="bottom-nav">
   <button class="active" data-bottom="all"><span>🔥</span>Alle</button>
@@ -116,13 +120,13 @@
   <div class="modal-card">
     <button class="close" id="actionClose">×</button>
     <h3 id="actionTitle">Event melden</h3>
-    <p>Demo-Formular. Sobald die Seite öffentlich ist, kann das Formular mit einer echten E-Mail-Adresse oder Datenbank verbunden werden.</p>
+    <p>Demo-Formular. Eingaben werden aktuell nicht versendet oder serverseitig gespeichert.</p>
     <form id="actionForm">
       <label>Name / Firma<input required placeholder="Name oder Verein"></label>
       <label>Art<select id="requestType"><option>Event melden</option><option>Werbeanzeige anfragen</option></select></label>
       <label>Nachricht<textarea required placeholder="Event, Datum, Ort oder Werbeanfrage…"></textarea></label>
       <button class="cta-btn" type="submit">Anfrage vorbereiten</button>
-      <div class="demo-msg" id="demoMsg">✓ Demo gespeichert. Für echten Versand muss später eine Kontaktadresse verbunden werden.</div>
+      <div class="demo-msg" id="demoMsg">✓ Nur Demo: Die Angaben wurden nicht an einen Server gesendet.</div>
     </form>
   </div>
 </div>
