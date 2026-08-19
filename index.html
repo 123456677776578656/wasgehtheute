@@ -18,19 +18,9 @@
 <meta name="twitter:card" content="summary">
 <title>WasGehtHeute.ch – Events heute & am Wochenende</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="enhancements.css">
 <script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"WebSite",
-  "name":"WasGehtHeute.ch",
-  "url":"https://123456677776578656.github.io/wasgehtheute/",
-  "description":"Geprüfte Veranstaltungen in Buchs, Rheintal, Zürich und Chur.",
-  "potentialAction":{
-    "@type":"SearchAction",
-    "target":"https://123456677776578656.github.io/wasgehtheute/?q={search_term_string}",
-    "query-input":"required name=search_term_string"
-  }
-}
+{"@context":"https://schema.org","@type":"WebSite","name":"WasGehtHeute.ch","url":"https://123456677776578656.github.io/wasgehtheute/","description":"Geprüfte Veranstaltungen in Buchs, Rheintal, Zürich und Chur.","potentialAction":{"@type":"SearchAction","target":"https://123456677776578656.github.io/wasgehtheute/?q={search_term_string}","query-input":"required name=search_term_string"}}
 </script>
 </head>
 <body>
@@ -41,128 +31,19 @@
   <span class="region-pill">📍 Rheintal · Zürich · Chur</span>
   <button class="mobile-menu" aria-label="Menü">☰</button>
 </header>
-
-<section class="hero" id="top">
-  <div class="hero-inner">
-    <div class="hero-row">
-      <div>
-        <div class="eyebrow">Geprüfte Veranstaltungen · täglich aktualisiert</div>
-        <h1>Was geht <span>heute?</span></h1>
-        <p class="hero-copy">Finde echte Dorffeste, Partys, Konzerte, Märkte, Sport- und Familienanlässe in Buchs und dem Rheintal, im ganzen Kanton Zürich und in Chur – schnell nach Ort, Region und Kategorie gefiltert.</p>
-      </div>
-      <div class="verified-box"><b>✓ Quellen geprüft</b><span>Bei jedem Event findest du den direkten Link zur Informationsquelle.</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="search-strip">
-  <label class="control">🔎<input id="q" placeholder="Event oder Ort suchen…" autocomplete="off"></label>
-  <label class="control">🗺️<select id="area"><option value="">Alle Regionen</option><option>Rheintal / Werdenberg / Sargans / Wildhaus</option><option>Kanton Zürich</option><option>Chur / Graubünden</option></select></label>
-  <label class="control">📍<select id="place"><option value="">Alle Orte</option></select></label>
-  <button class="primary" id="resetTop">Alle anzeigen</button>
-</section>
-
+<section class="hero" id="top"><div class="hero-inner"><div class="hero-row"><div><div class="eyebrow">Geprüfte Veranstaltungen · täglich aktualisiert</div><h1>Was geht <span>heute?</span></h1><p class="hero-copy">Finde echte Dorffeste, Partys, Konzerte, Märkte, Sport- und Familienanlässe in Buchs und dem Rheintal, im ganzen Kanton Zürich und in Chur – schnell nach Ort, Region und Kategorie gefiltert.</p></div><div class="verified-box"><b>✓ Quellen geprüft</b><span>Bei jedem Event findest du den direkten Link zur Informationsquelle.</span></div></div></div></section>
+<section class="search-strip"><label class="control">🔎<input id="q" placeholder="Event oder Ort suchen…" autocomplete="off"></label><label class="control">🗺️<select id="area"><option value="">Alle Regionen</option><option>Rheintal / Werdenberg / Sargans / Wildhaus</option><option>Kanton Zürich</option><option>Chur / Graubünden</option></select></label><label class="control">📍<select id="place"><option value="">Alle Orte</option></select></label><button class="primary" id="resetTop">Alle anzeigen</button></section>
 <div class="mobile-filter-scroll" id="mobileFilters"></div>
-
-<section class="highlights-section" id="highlights">
-  <div class="section-head">
-    <div><div class="eyebrow">Top-Events</div><h2>🔥 Dieses Wochenende</h2><p id="highlightText">Die besten kommenden Anlässe auf einen Blick.</p></div>
-    <a class="section-link" href="#events">Alle Events ↓</a>
-  </div>
-  <div class="highlight-grid" id="topGrid"></div>
-</section>
-
-<div class="desktop-shell">
-  <aside class="sidebar">
-    <div class="side-title"><b>Filter</b><button class="clear-btn" id="clearSide">Zurücksetzen</button></div>
-    <div class="side-group">
-      <span class="side-label">Zeitraum</span>
-      <div class="side-buttons" id="periodButtons">
-        <button class="side-btn active" data-period="all"><span>Alle kommenden</span></button>
-        <button class="side-btn" data-period="today"><span>Heute</span></button>
-        <button class="side-btn" data-period="weekend"><span>Dieses Wochenende</span></button>
-        <button class="side-btn" data-period="30"><span>Nächste 30 Tage</span></button>
-      </div>
-    </div>
-    <div class="side-group"><span class="side-label">Kategorie</span><div class="side-buttons" id="categoryButtons"></div></div>
-    <div class="side-group"><span class="side-label">Sortierung</span><select class="side-select" id="sort"><option value="date">Datum</option><option value="place">Ort A–Z</option><option value="category">Kategorie</option></select></div>
-  </aside>
-
-  <main id="events">
-    <div class="content-head">
-      <div><div class="eyebrow">Aktuelle Auswahl</div><h2>Kommende Events</h2><p id="result"></p></div>
-      <div class="view-switch"><button class="view-btn active" id="gridBtn" title="Kartenansicht">▦</button><button class="view-btn" id="listBtn" title="Listenansicht">☷</button></div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat"><strong id="total">0</strong><span>geprüfte Events</span></div>
-      <div class="stat"><strong id="places">0</strong><span>Orte</span></div>
-      <div class="stat"><strong id="categories">0</strong><span>Kategorien</span></div>
-      <div class="stat"><strong id="visibleCount">0</strong><span>aktuell sichtbar</span></div>
-      <div class="stat live-stat"><strong id="globalViewCount">…</strong><span>Seitenaufrufe gesamt</span></div>
-    </div>
-
-    <div class="event-grid" id="grid"></div>
-    <div class="empty" id="empty"><div class="ico">🔎</div><h3>Keine Events gefunden</h3><p>Versuche einen anderen Ort, Zeitraum oder eine andere Kategorie.</p></div>
-
-    <section class="ads-section" id="ads">
-      <div class="section-head compact"><div><div class="eyebrow">Werbung auf WasGehtHeute.ch</div><h2>Regionale Werbeplätze</h2><p>Klare Kennzeichnung als Anzeige. Keine versteckte Werbung zwischen normalen Events.</p></div></div>
-      <div class="ad-grid">
-        <article class="ad-card featured-ad"><span class="ad-label">ANZEIGE</span><div class="ad-icon">📣</div><h3>Startseiten-Highlight</h3><p>Prominenter Werbeplatz oberhalb der Eventliste für regionale Unternehmen oder Veranstalter.</p><b>Preis auf Anfrage</b><button class="cta-btn adRequestBtn">Platz anfragen</button></article>
-        <article class="ad-card"><span class="ad-label">ANZEIGE</span><div class="ad-icon">⭐</div><h3>Event hervorheben</h3><p>Ein eigener Anlass kann zusätzlich als gesponsertes Highlight gekennzeichnet werden.</p><b>Preis auf Anfrage</b><button class="cta-btn secondary adRequestBtn">Platz anfragen</button></article>
-        <article class="ad-card"><span class="ad-label">ANZEIGE</span><div class="ad-icon">📍</div><h3>Regionaler Sponsor</h3><p>Präsenz für eine bestimmte Region oder Stadt, klar getrennt vom redaktionellen Eventbereich.</p><b>Preis auf Anfrage</b><button class="cta-btn secondary adRequestBtn">Platz anfragen</button></article>
-      </div>
-    </section>
-
-    <section class="pwa-box">
-      <div><div class="eyebrow">Ohne App Store</div><h3>WasGehtHeute als App installieren</h3><p>Die Seite ist jetzt als PWA vorbereitet. Auf unterstützten Geräten kann sie direkt auf dem Startbildschirm installiert werden und Teile der Oberfläche funktionieren auch offline.</p></div>
-      <button class="cta-btn" id="installPwaBtnBottom">📲 App installieren</button>
-    </section>
-
-    <section class="cta" id="cta">
-      <div><div class="eyebrow">Für Veranstalter & Unternehmen</div><h3>Dein Event oder deine Anzeige</h3><p>Du veranstaltest etwas in der Region oder möchtest auf WasGehtHeute.ch sichtbar werden? Melde deinen Anlass oder frage eine Werbeanzeige an.</p></div>
-      <div class="cta-actions"><button class="cta-btn" id="reportEventBtn">+ Event melden</button><button class="cta-btn secondary" id="advertBtn">📣 Anzeige anfragen</button></div>
-    </section>
-
-    <div class="footer-info">
-      <span>✓ Quellenprüfung: <strong id="lastUpdated">täglich</strong></span>
-      <span>📈 Echter Zähler: <strong>CounterAPI</strong></span>
-      <span>ℹ️ Termine können sich kurzfristig ändern.</span>
-    </div>
-  </main>
-</div>
-
-<footer>
-  <b>WasGehtHeute<span class="pink">.ch</span></b>
-  <p>Rheintal · Werdenberg · Sargans · Wildhaus · Zürich · Chur/Graubünden</p>
-  <p><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="haftung.html">Haftungshinweis</a></p>
-</footer>
-
-<nav class="bottom-nav">
-  <button class="active" data-bottom="all"><span>🔥</span>Alle</button>
-  <button data-bottom="today"><span>📅</span>Heute</button>
-  <button data-bottom="weekend"><span>🎉</span>Weekend</button>
-  <button id="bottomSearch"><span>🔎</span>Suchen</button>
-</nav>
-
-<div class="modal" id="actionModal">
-  <div class="modal-card">
-    <button class="close" id="actionClose">×</button>
-    <h3 id="actionTitle">Event melden</h3>
-    <p>Demo-Formular. Eingaben werden aktuell nicht versendet oder serverseitig gespeichert.</p>
-    <form id="actionForm">
-      <label>Name / Firma<input required placeholder="Name oder Verein"></label>
-      <label>Art<select id="requestType"><option>Event melden</option><option>Werbeanzeige anfragen</option></select></label>
-      <label>Nachricht<textarea required placeholder="Event, Datum, Ort oder Werbeanfrage…"></textarea></label>
-      <button class="cta-btn" type="submit">Anfrage vorbereiten</button>
-      <div class="demo-msg" id="demoMsg">✓ Nur Demo: Die Angaben wurden nicht an einen Server gesendet.</div>
-    </form>
-  </div>
-</div>
-
-<script src="events-1.js"></script>
-<script src="events-2.js"></script>
-<script src="events-3.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+<section class="highlights-section" id="highlights"><div class="section-head"><div><div class="eyebrow">Top-Events</div><h2>🔥 Dieses Wochenende</h2><p id="highlightText">Die besten kommenden Anlässe auf einen Blick.</p></div><a class="section-link" href="#events">Alle Events ↓</a></div><div class="highlight-grid" id="topGrid"></div></section>
+<div class="desktop-shell"><aside class="sidebar"><div class="side-title"><b>Filter</b><button class="clear-btn" id="clearSide">Zurücksetzen</button></div><div class="side-group"><span class="side-label">Zeitraum</span><div class="side-buttons" id="periodButtons"><button class="side-btn active" data-period="all"><span>Alle kommenden</span></button><button class="side-btn" data-period="today"><span>Heute</span></button><button class="side-btn" data-period="weekend"><span>Dieses Wochenende</span></button><button class="side-btn" data-period="30"><span>Nächste 30 Tage</span></button></div></div><div class="side-group"><span class="side-label">Kategorie</span><div class="side-buttons" id="categoryButtons"></div></div><div class="side-group"><span class="side-label">Sortierung</span><select class="side-select" id="sort"><option value="date">Datum</option><option value="place">Ort A–Z</option><option value="category">Kategorie</option></select></div></aside>
+<main id="events"><div class="content-head"><div><div class="eyebrow">Aktuelle Auswahl</div><h2>Kommende Events</h2><p id="result"></p></div><div class="view-switch"><button class="view-btn active" id="gridBtn" title="Kartenansicht">▦</button><button class="view-btn" id="listBtn" title="Listenansicht">☷</button></div></div>
+<div class="stats-row"><div class="stat"><strong id="total">0</strong><span>geprüfte Events</span></div><div class="stat"><strong id="places">0</strong><span>Orte</span></div><div class="stat"><strong id="categories">0</strong><span>Kategorien</span></div><div class="stat"><strong id="visibleCount">0</strong><span>aktuell sichtbar</span></div><div class="stat live-stat"><strong id="globalViewCount">…</strong><span>Seitenaufrufe gesamt</span></div></div>
+<div class="event-grid" id="grid"></div><div class="empty" id="empty"><div class="ico">🔎</div><h3>Keine Events gefunden</h3><p>Versuche einen anderen Ort, Zeitraum oder eine andere Kategorie.</p></div>
+<section class="ads-section" id="ads"><div class="section-head compact"><div><div class="eyebrow">Werbung auf WasGehtHeute.ch</div><h2>Regionale Werbeplätze</h2><p>Klare Kennzeichnung als Anzeige. Keine versteckte Werbung zwischen normalen Events.</p></div></div><div class="ad-grid"><article class="ad-card featured-ad"><span class="ad-label">ANZEIGE</span><div class="ad-icon">📣</div><h3>Startseiten-Highlight</h3><p>Prominenter Werbeplatz oberhalb der Eventliste für regionale Unternehmen oder Veranstalter.</p><b>Preis auf Anfrage</b><button class="cta-btn adRequestBtn">Platz anfragen</button></article><article class="ad-card"><span class="ad-label">ANZEIGE</span><div class="ad-icon">⭐</div><h3>Event hervorheben</h3><p>Ein eigener Anlass kann zusätzlich als gesponsertes Highlight gekennzeichnet werden.</p><b>Preis auf Anfrage</b><button class="cta-btn secondary adRequestBtn">Platz anfragen</button></article><article class="ad-card"><span class="ad-label">ANZEIGE</span><div class="ad-icon">📍</div><h3>Regionaler Sponsor</h3><p>Präsenz für eine bestimmte Region oder Stadt, klar getrennt vom redaktionellen Eventbereich.</p><b>Preis auf Anfrage</b><button class="cta-btn secondary adRequestBtn">Platz anfragen</button></article></div></section>
+<section class="pwa-box"><div><div class="eyebrow">Ohne App Store</div><h3>WasGehtHeute als App installieren</h3><p>Die Seite ist jetzt als PWA vorbereitet. Auf unterstützten Geräten kann sie direkt auf dem Startbildschirm installiert werden und Teile der Oberfläche funktionieren auch offline.</p></div><button class="cta-btn" id="installPwaBtnBottom">📲 App installieren</button></section>
+<section class="cta" id="cta"><div><div class="eyebrow">Für Veranstalter & Unternehmen</div><h3>Dein Event oder deine Anzeige</h3><p>Du veranstaltest etwas in der Region oder möchtest auf WasGehtHeute.ch sichtbar werden? Melde deinen Anlass oder frage eine Werbeanzeige an.</p></div><div class="cta-actions"><button class="cta-btn" id="reportEventBtn">+ Event melden</button><button class="cta-btn secondary" id="advertBtn">📣 Anzeige anfragen</button></div></section>
+<div class="footer-info"><span>✓ Quellenprüfung: <strong id="lastUpdated">täglich</strong></span><span>📈 Echter Zähler: <strong>CounterAPI</strong></span><span>ℹ️ Termine können sich kurzfristig ändern.</span></div></main></div>
+<footer><b>WasGehtHeute<span class="pink">.ch</span></b><p>Rheintal · Werdenberg · Sargans · Wildhaus · Zürich · Chur/Graubünden</p><p><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="haftung.html">Haftungshinweis</a></p></footer>
+<nav class="bottom-nav"><button class="active" data-bottom="all"><span>🔥</span>Alle</button><button data-bottom="today"><span>📅</span>Heute</button><button data-bottom="weekend"><span>🎉</span>Weekend</button><button id="bottomSearch"><span>🔎</span>Suchen</button></nav>
+<div class="modal" id="actionModal"><div class="modal-card"><button class="close" id="actionClose">×</button><h3 id="actionTitle">Event melden</h3><p>Demo-Formular. Eingaben werden aktuell nicht versendet oder serverseitig gespeichert.</p><form id="actionForm"><label>Name / Firma<input required placeholder="Name oder Verein"></label><label>Art<select id="requestType"><option>Event melden</option><option>Werbeanzeige anfragen</option></select></label><label>Nachricht<textarea required placeholder="Event, Datum, Ort oder Werbeanfrage…"></textarea></label><button class="cta-btn" type="submit">Anfrage vorbereiten</button><div class="demo-msg" id="demoMsg">✓ Nur Demo: Die Angaben wurden nicht an einen Server gesendet.</div></form></div></div>
+<script src="events-1.js"></script><script src="events-2.js"></script><script src="events-3.js"></script><script src="app.js"></script></body></html>
