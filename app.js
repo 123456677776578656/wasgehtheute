@@ -6,8 +6,8 @@ function swissToday(){
   return `${get('year')}-${get('month')}-${get('day')}`;
 }
 const TODAY=swissToday();
-const categoryEmoji={Alle:'🔥',Dorffest:'🎉',Party:'🪩',Musik:'🎵',Festival:'🎪',Sport:'⚽',Markt:'🛍️',Familie:'👨‍👩‍👧',Food:'🍔',Kultur:'🎭',Gratis:'🆓',Outdoor:'🥾'};
-const topCats=['Alle','Dorffest','Party','Musik','Festival','Sport','Markt','Familie','Food','Kultur','Gratis','Outdoor'];
+const categoryEmoji={Alle:'🔥',Dorffest:'🎉',Party:'🪩',Musik:'🎵',Club:'🪩',Bar:'🍸',Festival:'🎪',Sport:'⚽',Markt:'🛍️',Familie:'👨‍👩‍👧',Food:'🍔',Kultur:'🎭',Gratis:'🆓',Outdoor:'🥾'};
+const topCats=['Alle','Club','Bar','Party','Musik','Dorffest','Festival','Sport','Markt','Familie','Food','Kultur','Gratis','Outdoor'];
 let activeCategory='Alle', activePeriod='all';
 
 const q=document.getElementById('q'), area=document.getElementById('area'), place=document.getElementById('place'),
@@ -126,7 +126,6 @@ document.getElementById('places').textContent=new Set(DATA.filter(e=>e.end>=TODA
 document.getElementById('categories').textContent=new Set(DATA.filter(e=>e.end>=TODAY).flatMap(e=>e.cats)).size;
 document.getElementById('lastUpdated').textContent=new Intl.DateTimeFormat('de-CH',{dateStyle:'medium',timeZone:'Europe/Zurich'}).format(new Date());
 
-// Echter globaler Aufrufzähler. CounterAPI V1 ist öffentlich und zählt Seitenaufrufe, keine eindeutigen Personen.
 async function updateGlobalCounter(){
   const el=document.getElementById('globalViewCount');
   try{
@@ -144,7 +143,6 @@ function openAction(type){requestType.value=type;document.getElementById('action
 document.getElementById('reportEventBtn').onclick=()=>openAction('Event melden');document.getElementById('advertBtn').onclick=()=>openAction('Werbeanzeige anfragen');document.querySelectorAll('.adRequestBtn').forEach(b=>b.onclick=()=>openAction('Werbeanzeige anfragen'));
 document.getElementById('actionClose').onclick=()=>modal.classList.remove('open');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});document.getElementById('actionForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoMsg').style.display='block';});
 
-// PWA-Installation
 let deferredPrompt=null;
 const installButtons=[document.getElementById('installPwaBtn'),document.getElementById('installPwaBtnBottom')];
 function setInstallVisible(show){installButtons.forEach(b=>{if(!b)return;b.hidden=!show;});}
@@ -156,6 +154,5 @@ installButtons.forEach(b=>b&&b.addEventListener('click',async()=>{
 window.addEventListener('appinstalled',()=>setInstallVisible(false));
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 
-// Suchbegriff aus ?q= übernehmen.
 const queryTerm=new URLSearchParams(location.search).get('q');if(queryTerm){q.value=queryTerm;}
 refreshPlaces();renderHighlights();render();
