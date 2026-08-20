@@ -5,6 +5,6 @@ window.WGH_CONFIG={
   pushSubscribeEndpoint:"",
   authEndpoint:"",
   customDomain:"",
-  analyticsNamespace:"wasgehtheute-ch",
+  analyticsNamespace:"wasgehtheute.ch",
   adminMode:"static-preview"
 };
