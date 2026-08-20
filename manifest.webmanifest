@@ -1,12 +1,12 @@
 {
   "name":"WasGehtHeute.ch",
   "short_name":"WasGehtHeute",
-  "description":"Geprüfte Events in Buchs, Rheintal, Zürich und Chur.",
+  "description":"Geprüfte Events in Buchs, Rheintal, Zürich, Chur/Graubünden und Thurgau.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
-  "background_color":"#0a0a10",
-  "theme_color":"#0a0a10",
+  "background_color":"#0b0d12",
+  "theme_color":"#0b0d12",
   "lang":"de-CH",
   "categories":["entertainment","events","lifestyle"],
   "icons":[
