@@ -33,28 +33,38 @@ document.getElementById('desktopPopularMore')?.addEventListener('click',()=>docu
 document.getElementById('sidebarSubmitBtn')?.addEventListener('click',()=>document.getElementById('reportEventBtn')?.click());
 document.getElementById('nearbyPromoBtn')?.addEventListener('click',()=>document.getElementById('nearMeBtn')?.click());
 
-/* Lange Eventliste standardmässig kurz halten. */
+/* Lange Eventliste standardmässig kurz halten – aber nur bei wirklich sichtbaren Treffern. */
 const grid=document.getElementById('grid');
 if(grid){
   const wrap=document.createElement('div');wrap.className='more-events-wrap';
   const btn=document.createElement('button');btn.type='button';btn.className='more-events-btn';wrap.appendChild(btn);
   grid.insertAdjacentElement('afterend',wrap);
   const limit=()=>matchMedia('(max-width:980px)').matches?4:6;
+  let queued=false;
   const update=()=>{
-    const total=grid.querySelectorAll('.card').length,shown=Math.min(total,limit());
-    if(total<=limit()){wrap.hidden=true;grid.classList.remove('expanded');return}
-    wrap.hidden=false;
+    queued=false;
+    const cards=[...grid.querySelectorAll('.card')];
+    cards.forEach(c=>c.classList.remove('compact-hidden'));
+    const eligible=cards.filter(c=>c.style.display!=='none');
     const open=grid.classList.contains('expanded');
+    if(!open)eligible.slice(limit()).forEach(c=>c.classList.add('compact-hidden'));
+    const total=eligible.length,shown=Math.min(total,limit());
+    if(total<=limit()){wrap.hidden=true;grid.classList.remove('expanded');cards.forEach(c=>c.classList.remove('compact-hidden'));return}
+    wrap.hidden=false;
     btn.innerHTML=open?'Weniger anzeigen':`Mehr Events anzeigen <span class="count">+${Math.max(0,total-shown)}</span>`;
   };
+  const schedule=()=>{if(queued)return;queued=true;requestAnimationFrame(update)};
   btn.addEventListener('click',()=>{
-    const wasOpen=grid.classList.toggle('expanded');
-    update();
-    if(!wasOpen)document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
+    const open=grid.classList.toggle('expanded');
+    schedule();
+    if(!open)document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
   });
-  new MutationObserver(()=>{grid.classList.remove('expanded');requestAnimationFrame(update)}).observe(grid,{childList:true});
-  addEventListener('resize',update,{passive:true});
-  update();
+  new MutationObserver(mutations=>{
+    if(mutations.some(m=>m.type==='childList'))grid.classList.remove('expanded');
+    schedule();
+  }).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+  addEventListener('resize',schedule,{passive:true});
+  schedule();
 }
 
 /* Desktop-Kategoriepanel nur bei Bedarf */
