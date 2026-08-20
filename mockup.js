@@ -21,7 +21,6 @@ const pop=document.getElementById('desktopPopularGrid');if(pop)pop.innerHTML=upc
 
 function goEvents(){document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'})}
 function openCategories(){
-  const mobile=document.getElementById('mobileFilters');
   if(matchMedia('(max-width:980px)').matches){document.getElementById('bottomCategories')?.click();return}
   const target=document.getElementById('categoryButtons');
   if(target){target.closest('.utility-sidebar')?.classList.toggle('desktop-open')}
@@ -33,6 +32,30 @@ document.getElementById('desktopCategoriesBtn')?.addEventListener('click',openCa
 document.getElementById('desktopPopularMore')?.addEventListener('click',()=>document.getElementById('highlights')?.scrollIntoView({behavior:'smooth',block:'start'}));
 document.getElementById('sidebarSubmitBtn')?.addEventListener('click',()=>document.getElementById('reportEventBtn')?.click());
 document.getElementById('nearbyPromoBtn')?.addEventListener('click',()=>document.getElementById('nearMeBtn')?.click());
+
+/* Lange Eventliste standardmässig kurz halten. */
+const grid=document.getElementById('grid');
+if(grid){
+  const wrap=document.createElement('div');wrap.className='more-events-wrap';
+  const btn=document.createElement('button');btn.type='button';btn.className='more-events-btn';wrap.appendChild(btn);
+  grid.insertAdjacentElement('afterend',wrap);
+  const limit=()=>matchMedia('(max-width:980px)').matches?4:6;
+  const update=()=>{
+    const total=grid.querySelectorAll('.card').length,shown=Math.min(total,limit());
+    if(total<=limit()){wrap.hidden=true;grid.classList.remove('expanded');return}
+    wrap.hidden=false;
+    const open=grid.classList.contains('expanded');
+    btn.innerHTML=open?'Weniger anzeigen':`Mehr Events anzeigen <span class="count">+${Math.max(0,total-shown)}</span>`;
+  };
+  btn.addEventListener('click',()=>{
+    const wasOpen=grid.classList.toggle('expanded');
+    update();
+    if(!wasOpen)document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  new MutationObserver(()=>{grid.classList.remove('expanded');requestAnimationFrame(update)}).observe(grid,{childList:true});
+  addEventListener('resize',update,{passive:true});
+  update();
+}
 
 /* Desktop-Kategoriepanel nur bei Bedarf */
 const style=document.createElement('style');style.textContent='@media(min-width:981px){.utility-sidebar.desktop-open{display:block!important;position:fixed!important;left:50%;top:90px;z-index:120;width:300px;max-height:72vh;overflow:auto;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:#0b111b;box-shadow:0 30px 80px rgba(0,0,0,.55);transform:translateX(-470px)}.utility-sidebar.desktop-open .side-group{display:block!important}.utility-sidebar.desktop-open .side-title{display:flex!important}}';document.head.appendChild(style);
