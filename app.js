@@ -17,7 +17,7 @@ result=document.getElementById('result'),mobileFilters=document.getElementById('
 function ymd(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function overlaps(e,a,b){return e.start<=b&&e.end>=a}
 function thisWeekend(){const d=new Date(TODAY+'T12:00:00'),dow=d.getDay();let add=(5-dow+7)%7;if(dow===6)add=-1;if(dow===0)add=-2;const fri=new Date(d);fri.setDate(d.getDate()+add);const sun=new Date(fri);sun.setDate(fri.getDate()+2);return[ymd(fri),ymd(sun)]}
-function within30(e){const a=new Date(TODAY+'T12:00:00'),b=new Date(e.start+'T12:00:00'),days=(b-a)/86400000;return days>=0&&days<=30&&e.end>=TODAY}
+function within30(e){const end=new Date(TODAY+'T12:00:00');end.setDate(end.getDate()+30);return e.start<=ymd(end)&&e.end>=TODAY}
 function isToday(e){return e.start<=TODAY&&e.end>=TODAY}
 function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function eventUrl(e){return `event.html?id=${encodeURIComponent(slugify(e.title+'-'+e.city+'-'+e.start))}`}
