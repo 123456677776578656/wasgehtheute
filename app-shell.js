@@ -4,8 +4,7 @@ const filters=document.getElementById('mobileFilters');
 const backdrop=document.getElementById('mobileDrawerBackdrop');
 const floating=document.getElementById('floatingActions');
 const discoverBtn=document.querySelector('[data-bottom="all"]');
-const topGrid=document.getElementById('topGrid');
-const desktopPopularGrid=document.getElementById('desktopPopularGrid');
+const favoriteBottom=document.getElementById('bottomFavorites');
 
 function scrollSearch(){
   if(!q)return;
@@ -27,11 +26,6 @@ function syncQuick(){
     btn.classList.toggle('active',!!target?.classList.contains('active'));
   });
 }
-function syncDesktopPopular(){
-  if(!topGrid||!desktopPopularGrid)return;
-  const cards=[...topGrid.querySelectorAll('.top-card')].slice(0,3);
-  desktopPopularGrid.replaceChildren(...cards.map(card=>card.cloneNode(true)));
-}
 
 document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.addEventListener('click',()=>{
   document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.click();
@@ -49,7 +43,8 @@ document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.addEventListener(
 document.getElementById('quickSearchBtn')?.addEventListener('click',scrollSearch);
 document.getElementById('mobileSearchTop')?.addEventListener('click',scrollSearch);
 document.getElementById('floatSearchBtn')?.addEventListener('click',scrollSearch);
-document.getElementById('bottomSearch')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);scrollSearch()});
+/* bottomSearch wird bereits in app.js gescrollt/fokussiert. Hier nur den aktiven Tab setzen, damit es nicht doppelt springt. */
+document.getElementById('bottomSearch')?.addEventListener('click',e=>setBottomActive(e.currentTarget));
 
 document.getElementById('mobileMenuBtn')?.addEventListener('click',toggleCategories);
 document.getElementById('bottomCategories')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);toggleCategories()});
@@ -57,8 +52,12 @@ backdrop?.addEventListener('click',closeCategories);
 filters?.addEventListener('click',e=>{if(e.target.closest('.mobile-chip')){setBottomActive(discoverBtn);setTimeout(closeCategories,80)}});
 
 document.getElementById('bottomSubmit')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);document.getElementById('reportEventBtn')?.click()});
-document.getElementById('mobileFavoriteTop')?.addEventListener('click',()=>document.getElementById('favoritesBtn')?.click());
-document.getElementById('bottomFavorites')?.addEventListener('click',e=>setBottomActive(e.currentTarget));
+document.getElementById('mobileFavoriteTop')?.addEventListener('click',()=>{
+  document.getElementById('favoritesBtn')?.click();
+  setBottomActive(favoriteBottom);
+  document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
+});
+favoriteBottom?.addEventListener('click',e=>setBottomActive(e.currentTarget));
 discoverBtn?.addEventListener('click',()=>setBottomActive(discoverBtn));
 
 document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
@@ -66,7 +65,5 @@ window.addEventListener('scroll',()=>floating?.classList.toggle('visible',window
 
 const observer=new MutationObserver(syncQuick);
 document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
-if(topGrid){new MutationObserver(()=>requestAnimationFrame(syncDesktopPopular)).observe(topGrid,{childList:true,subtree:true})}
 syncQuick();
-syncDesktopPopular();
 })();
