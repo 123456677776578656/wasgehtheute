@@ -1,4 +1,4 @@
-const CACHE='wasgehtheute-v21';
+const CACHE='wasgehtheute-v22';
 const ASSETS=['./','./index.html','./style.css','./professional.css','./enhancements.css','./mobile-fix.css','./accessibility.css','./discovery.css','./app-shell.css','./mockup.css','./compact-feed.css','./site-config.js','./app.js','./traffic.js','./features.js','./event-images.js','./app-shell.js','./mockup.js','./locations.js','./events-1.js','./events-2.js','./events-3.js','./events-nightlife.js','./events-nightlife-extra.js','./manifest.webmanifest','./icon.svg','./event.html','./event-detail.js','./buchs.html','./zuerich.html','./chur.html','./thurgau.html','./nightlife.html','./weekend.html','./winterthur.html','./uster.html','./landing.js','./veranstalter.html','./stats.html','./stats.js','./admin.html','./admin.js','./datenschutz.html','./impressum.html','./haftung.html'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
