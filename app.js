@@ -7,7 +7,7 @@ function swissToday(){
 }
 const TODAY=swissToday();
 const categoryEmoji={Alle:'🔥',Dorffest:'🎉',Party:'🪩',Musik:'🎵',Club:'🪩',Bar:'🍸',Festival:'🎪',Sport:'⚽',Markt:'🛍️',Familie:'👨‍👩‍👧',Food:'🍔',Kultur:'🎭',Gratis:'🆓',Outdoor:'🥾'};
-const topCats=['Alle','Club','Bar','Party','Musik','Dorffest','Festival','Sport','Markt','Familie','Food','Kultur','Gratis','Outdoor'];
+const topCats=['Alle','Party','Musik','Bar','Club','Dorffest','Markt','Familie','Sport','Kultur'];
 let activeCategory='Alle', activePeriod='all';
 
 const q=document.getElementById('q'), area=document.getElementById('area'), place=document.getElementById('place'),
@@ -52,7 +52,7 @@ function card(e){
     </div>
     <div class="card-body">
       <div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${e.source_type||'Quelle geprüft'}</span></div>
-      <div class="catline">${e.region} · ${e.cats.slice(0,3).join(' · ')}</div>
+      <div class="catline">${e.cats.slice(0,3).join(' · ')}</div>
       <h3><a href="${eventUrl(e)}">${e.title}</a></h3>
       <p class="desc">${e.desc}</p>
       <div class="tags">${e.cats.map(c=>`<span class="tag">${c}</span>`).join('')}</div>
@@ -65,7 +65,7 @@ function topCard(e,badge){
   return `<article class="top-card">
     <div class="top-badge">${badge}</div>
     <div class="top-emoji">${e.emoji}</div>
-    <div class="top-copy"><small>📍 ${e.city} · ${e.date}</small><h3><a href="${eventUrl(e)}">${e.title}</a></h3><p>${e.desc}</p><a class="top-link" href="${eventUrl(e)}">Event ansehen →</a></div>
+    <div class="top-copy"><small>📍 ${e.city} · ${e.date}</small><h3><a href="${eventUrl(e)}">${e.title}</a></h3><p>${e.desc}</p><a class="top-link" href="${eventUrl(e)}">Ansehen →</a></div>
   </article>`;
 }
 
@@ -75,8 +75,8 @@ function renderHighlights(){
   let picks=future.filter(e=>overlaps(e,fri,sun)).slice(0,3);
   let weekend=true;
   if(!picks.length){picks=future.slice(0,3);weekend=false;}
-  topGrid.innerHTML=picks.map((e,i)=>topCard(e,i===0?(weekend?'🔥 Wochenend-Tipp':'⭐ Nächster Tipp'):'⭐ Top-Event')).join('');
-  document.getElementById('highlightText').textContent=weekend?'Ausgewählte Events, die dieses Wochenende stattfinden.':'Die nächsten besonders interessanten Veranstaltungen.';
+  topGrid.innerHTML=picks.map((e,i)=>topCard(e,i===0?(weekend?'Wochenend-Tipp':'Nächster Tipp'):'Empfohlen')).join('');
+  document.getElementById('highlightText').textContent=weekend?'Events für dieses Wochenende.':'Die nächsten kommenden Events.';
 }
 
 function render(){
@@ -99,7 +99,7 @@ function render(){
   grid.innerHTML=arr.map(card).join('');
   empty.style.display=arr.length?'none':'block';
   document.getElementById('visibleCount').textContent=arr.length;
-  result.textContent=`${arr.length} Veranstaltung${arr.length===1?'':'en'} · ${area.value||'alle Regionen'}`;
+  result.textContent=`${arr.length} gefunden${area.value?' · '+area.value:''}`;
 }
 
 function clearBottomSpecial(){document.getElementById('bottomFavorites')?.classList.remove('active');}
@@ -116,12 +116,12 @@ topCats.forEach(cat=>{
 document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>setPeriod(b.dataset.period));
 document.querySelectorAll('[data-bottom]').forEach(b=>b.onclick=()=>setPeriod(b.dataset.bottom));
 function resetAll(){q.value='';area.value='';place.value='';sort.value='date';activeCategory='Alle';activePeriod='all';refreshPlaces();clearBottomSpecial();document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat==='Alle'));document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period==='all'));document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',b.dataset.bottom==='all'));render();}
-document.getElementById('resetTop').onclick=resetAll;document.getElementById('clearSide').onclick=resetAll;
-q.addEventListener('input',()=>{clearBottomSpecial();render();});area.addEventListener('change',()=>{clearBottomSpecial();refreshPlaces();render();});place.addEventListener('change',()=>{clearBottomSpecial();render();});sort.addEventListener('change',render);
-document.getElementById('gridBtn').onclick=()=>{grid.classList.remove('list-view');document.getElementById('gridBtn').classList.add('active');document.getElementById('listBtn').classList.remove('active');};
-document.getElementById('listBtn').onclick=()=>{grid.classList.add('list-view');document.getElementById('listBtn').classList.add('active');document.getElementById('gridBtn').classList.remove('active');};
-document.getElementById('bottomSearch').onclick=()=>{clearBottomSpecial();q.focus();window.scrollTo({top:q.getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
-document.getElementById('bottomFavorites').onclick=()=>{document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.remove('active'));document.getElementById('bottomFavorites').classList.add('active');document.getElementById('favoritesBtn')?.click();};
+document.getElementById('resetTop')?.addEventListener('click',resetAll);document.getElementById('clearSide')?.addEventListener('click',resetAll);
+q?.addEventListener('input',()=>{clearBottomSpecial();render();});area?.addEventListener('change',()=>{clearBottomSpecial();refreshPlaces();render();});place?.addEventListener('change',()=>{clearBottomSpecial();render();});sort?.addEventListener('change',render);
+document.getElementById('gridBtn')?.addEventListener('click',()=>{grid.classList.remove('list-view');document.getElementById('gridBtn').classList.add('active');document.getElementById('listBtn').classList.remove('active');});
+document.getElementById('listBtn')?.addEventListener('click',()=>{grid.classList.add('list-view');document.getElementById('listBtn').classList.add('active');document.getElementById('gridBtn').classList.remove('active');});
+document.getElementById('bottomSearch')?.addEventListener('click',()=>{clearBottomSpecial();q.focus();window.scrollTo({top:q.getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});});
+document.getElementById('bottomFavorites')?.addEventListener('click',()=>{document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.remove('active'));document.getElementById('bottomFavorites').classList.add('active');document.getElementById('favoritesBtn')?.click();});
 
 document.getElementById('total').textContent=DATA.filter(e=>e.end>=TODAY).length;
 document.getElementById('places').textContent=new Set(DATA.filter(e=>e.end>=TODAY).map(e=>e.city)).size;
@@ -130,6 +130,7 @@ document.getElementById('lastUpdated').textContent=new Intl.DateTimeFormat('de-C
 
 async function updateGlobalCounter(){
   const el=document.getElementById('globalViewCount');
+  if(!el)return;
   try{
     const r=await fetch('https://counterapi.com/api/wasgehtheute.ch/view/homepage',{cache:'no-store'});
     if(!r.ok)throw new Error('counter');
@@ -141,10 +142,10 @@ async function updateGlobalCounter(){
 updateGlobalCounter();
 
 const modal=document.getElementById('actionModal'), requestType=document.getElementById('requestType');
-function openAction(type){requestType.value=type;document.getElementById('actionTitle').textContent=type==='Event melden'?'Event melden':'Werbeanzeige anfragen';document.getElementById('demoMsg').style.display='none';modal.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('formName')?.focus(),80);}
-function closeAction(){modal.classList.remove('open');document.body.style.overflow='';}
-document.getElementById('reportEventBtn').onclick=()=>openAction('Event melden');document.getElementById('advertBtn').onclick=()=>openAction('Werbeanzeige anfragen');document.querySelectorAll('.adRequestBtn').forEach(b=>b.onclick=()=>openAction('Werbeanzeige anfragen'));
-document.getElementById('actionClose').onclick=closeAction;modal.addEventListener('click',e=>{if(e.target===modal)closeAction()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeAction()});document.getElementById('actionForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoMsg').style.display='block';});
+function openAction(type){if(!modal)return;requestType.value=type;document.getElementById('actionTitle').textContent=type==='Event melden'?'Event melden':'Werbeanzeige anfragen';document.getElementById('demoMsg').style.display='none';modal.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('formName')?.focus(),80);}
+function closeAction(){if(!modal)return;modal.classList.remove('open');document.body.style.overflow='';}
+document.getElementById('reportEventBtn')?.addEventListener('click',()=>openAction('Event melden'));document.getElementById('advertBtn')?.addEventListener('click',()=>openAction('Werbeanzeige anfragen'));document.querySelectorAll('.adRequestBtn').forEach(b=>b.onclick=()=>openAction('Werbeanzeige anfragen'));
+document.getElementById('actionClose')?.addEventListener('click',closeAction);modal?.addEventListener('click',e=>{if(e.target===modal)closeAction()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal?.classList.contains('open'))closeAction()});document.getElementById('actionForm')?.addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoMsg').style.display='block';});
 
 let deferredPrompt=null;
 const installButtons=[document.getElementById('installPwaBtn'),document.getElementById('installPwaBtnBottom')];
