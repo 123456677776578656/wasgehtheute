@@ -1,4 +1,3 @@
-@import url('professional.css');
 /* Mobile-first Stabilitaets-Fixes fuer WasGehtHeute.ch */
 html,body{max-width:100%;overflow-x:hidden}
 img,svg,canvas,video,iframe{max-width:100%}
