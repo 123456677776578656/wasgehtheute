@@ -1,7 +1,7 @@
 window.WGH_CONFIG={
   contactEmail:"",
   formEndpoint:"https://formspree.io/f/xkjwkyyz",
-  organizerEndpoint:"",
+  organizerEndpoint:"https://formspree.io/f/xkjwkyyz",
   pushSubscribeEndpoint:"",
   authEndpoint:"",
   customDomain:"",
