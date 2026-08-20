@@ -1,0 +1,11 @@
+/* Kürzere Eventliste: zuerst nur wenige Karten zeigen */
+.more-events-wrap{display:flex;justify-content:center;margin:16px 0 4px}
+.more-events-btn{min-height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.09);border-radius:11px;background:#111a27;color:#eef2f7;font-size:11px;font-weight:850;box-shadow:inset 0 1px 0 rgba(255,255,255,.025);cursor:pointer}
+.more-events-btn:hover{background:#192333;border-color:rgba(236,59,147,.20)}
+.more-events-btn .count{margin-left:5px;color:#f05ba5}
+.event-grid:not(.expanded) .card:nth-child(n+7){display:none!important}
+@media(max-width:980px){
+  .event-grid:not(.expanded) .card:nth-child(n+5){display:none!important}
+  .more-events-wrap{margin:13px 0 2px}
+  .more-events-btn{width:100%;min-height:44px;border-radius:12px;background:#121b28}
+}
