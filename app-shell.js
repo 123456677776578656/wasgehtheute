@@ -4,6 +4,8 @@ const filters=document.getElementById('mobileFilters');
 const backdrop=document.getElementById('mobileDrawerBackdrop');
 const floating=document.getElementById('floatingActions');
 const discoverBtn=document.querySelector('[data-bottom="all"]');
+const topGrid=document.getElementById('topGrid');
+const desktopPopularGrid=document.getElementById('desktopPopularGrid');
 
 function scrollSearch(){
   if(!q)return;
@@ -24,6 +26,11 @@ function syncQuick(){
     const target=document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`);
     btn.classList.toggle('active',!!target?.classList.contains('active'));
   });
+}
+function syncDesktopPopular(){
+  if(!topGrid||!desktopPopularGrid)return;
+  const cards=[...topGrid.querySelectorAll('.top-card')].slice(0,3);
+  desktopPopularGrid.replaceChildren(...cards.map(card=>card.cloneNode(true)));
 }
 
 document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.addEventListener('click',()=>{
@@ -59,5 +66,7 @@ window.addEventListener('scroll',()=>floating?.classList.toggle('visible',window
 
 const observer=new MutationObserver(syncQuick);
 document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
+if(topGrid){new MutationObserver(()=>requestAnimationFrame(syncDesktopPopular)).observe(topGrid,{childList:true,subtree:true})}
 syncQuick();
+syncDesktopPopular();
 })();
