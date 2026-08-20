@@ -5,65 +5,30 @@ const backdrop=document.getElementById('mobileDrawerBackdrop');
 const floating=document.getElementById('floatingActions');
 const discoverBtn=document.querySelector('[data-bottom="all"]');
 const favoriteBottom=document.getElementById('bottomFavorites');
-
-function scrollSearch(){
-  if(!q)return;
-  const y=q.getBoundingClientRect().top+window.scrollY-126;
-  window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
-  setTimeout(()=>q.focus(),260);
-}
+function scrollSearch(){if(!q)return;const y=q.getBoundingClientRect().top+window.scrollY-126;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});setTimeout(()=>q.focus(),260)}
 function closeCategories(){filters?.classList.remove('open');document.body.classList.remove('categories-open')}
-function openCategories(){filters?.classList.add('open');document.body.classList.add('categories-open')}
-function toggleCategories(){filters?.classList.contains('open')?closeCategories():openCategories()}
+function toggleCategories(){const open=filters?.classList.toggle('open');document.body.classList.toggle('categories-open',!!open)}
 function setBottomActive(button){document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));button?.classList.add('active')}
 function syncQuick(){
-  document.querySelectorAll('[data-quick-period]').forEach(btn=>{
-    const target=document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`);
-    btn.classList.toggle('active',!!target?.classList.contains('active'));
-  });
-  document.querySelectorAll('[data-quick-cat]').forEach(btn=>{
-    const target=document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`);
-    btn.classList.toggle('active',!!target?.classList.contains('active'));
-  });
+  document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.classList.contains('active')));
+  document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.classList.contains('active')))
 }
-
-document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.click();
-  document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
-  setBottomActive(discoverBtn);
-  setTimeout(syncQuick,20);
-}));
-document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.click();
-  document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
-  setBottomActive(discoverBtn);
-  setTimeout(syncQuick,20);
-}));
-
+document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.click();document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});setBottomActive(discoverBtn);setTimeout(syncQuick,20)}));
+document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.click();document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});setBottomActive(discoverBtn);setTimeout(syncQuick,20)}));
 document.getElementById('quickSearchBtn')?.addEventListener('click',scrollSearch);
 document.getElementById('mobileSearchTop')?.addEventListener('click',scrollSearch);
 document.getElementById('floatSearchBtn')?.addEventListener('click',scrollSearch);
-/* bottomSearch wird bereits in app.js gescrollt/fokussiert. Hier nur den aktiven Tab setzen, damit es nicht doppelt springt. */
-document.getElementById('bottomSearch')?.addEventListener('click',e=>setBottomActive(e.currentTarget));
-
+document.getElementById('bottomSearch')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);scrollSearch()});
 document.getElementById('mobileMenuBtn')?.addEventListener('click',toggleCategories);
 document.getElementById('bottomCategories')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);toggleCategories()});
 backdrop?.addEventListener('click',closeCategories);
 filters?.addEventListener('click',e=>{if(e.target.closest('.mobile-chip')){setBottomActive(discoverBtn);setTimeout(closeCategories,80)}});
-
 document.getElementById('bottomSubmit')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);document.getElementById('reportEventBtn')?.click()});
-document.getElementById('mobileFavoriteTop')?.addEventListener('click',()=>{
-  document.getElementById('favoritesBtn')?.click();
-  setBottomActive(favoriteBottom);
-  document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
-});
-favoriteBottom?.addEventListener('click',e=>setBottomActive(e.currentTarget));
-discoverBtn?.addEventListener('click',()=>setBottomActive(discoverBtn));
-
+function openFavorites(){window.WGH_APP?.showFavorites?.();setBottomActive(favoriteBottom)}
+document.getElementById('mobileFavoriteTop')?.addEventListener('click',openFavorites);
+favoriteBottom?.addEventListener('click',openFavorites);
+discoverBtn?.addEventListener('click',()=>{window.WGH_APP?.showAllEvents?.();setBottomActive(discoverBtn)});
 document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 window.addEventListener('scroll',()=>floating?.classList.toggle('visible',window.scrollY>520),{passive:true});
-
-const observer=new MutationObserver(syncQuick);
-document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
-syncQuick();
+const observer=new MutationObserver(syncQuick);document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));syncQuick();
 })();
