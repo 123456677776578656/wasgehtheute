@@ -34,5 +34,17 @@ async function run(){
   show('viewsWeek',viewsWeek);
   show('visitorsToday',visitorsToday);
 }
+
+/* Handy-Favoriten: unteren Button sicher mit der bestehenden Favoritenfunktion verbinden. */
+const bottomFavorites=document.getElementById('bottomFavorites');
+if(bottomFavorites){
+  bottomFavorites.addEventListener('click',()=>{
+    const favoritesButton=document.getElementById('favoritesBtn');
+    if(favoritesButton)favoritesButton.click();
+    document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+    bottomFavorites.classList.add('active');
+  });
+}
+
 run();
 })();
