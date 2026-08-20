@@ -1,0 +1,19 @@
+/* Grosse Schnellauswahl: Heute / Weekend / Gratis / Nightlife */
+.discovery-section{max-width:1460px;margin:0 auto 26px;padding:0 20px}
+.discovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.discovery-card{position:relative;display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:2px;min-height:84px;padding:15px 16px;border:1px solid rgba(255,255,255,.075);border-radius:18px;background:linear-gradient(145deg,rgba(18,22,31,.94),rgba(10,13,19,.96));color:#f7f8fb;text-align:left;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.025);cursor:pointer;overflow:hidden;transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.discovery-card:before{content:"";position:absolute;inset:auto -25% -80% auto;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.18),transparent 68%);pointer-events:none}
+.discovery-card:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.24);box-shadow:0 16px 38px rgba(0,0,0,.20)}
+.discovery-card.active{border-color:rgba(167,139,250,.36);background:linear-gradient(145deg,rgba(43,34,68,.96),rgba(16,17,27,.98));box-shadow:0 16px 42px rgba(79,58,170,.16),inset 0 1px 0 rgba(255,255,255,.04)}
+.discovery-icon{grid-row:1/3;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.055);font-size:22px;border:1px solid rgba(255,255,255,.055)}
+.discovery-card strong{font-size:16px;line-height:1.15;letter-spacing:-.025em}
+.discovery-card small{color:#8f98a8;font-size:10.5px;line-height:1.25}
+.discovery-count{grid-row:1/3;display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.06);color:#cdd4df;font-size:11px;font-weight:850}
+.discovery-card.today .discovery-icon{background:rgba(34,211,238,.08);color:#67e8f9}
+.discovery-card.weekend .discovery-icon{background:rgba(236,72,153,.09);color:#f9a8d4}
+.discovery-card.free .discovery-icon{background:rgba(163,230,53,.08);color:#bef264}
+.discovery-card.nightlife .discovery-icon{background:rgba(139,92,246,.11);color:#c4b5fd}
+.discovery-card.nightlife:after{content:"↗";position:absolute;top:10px;right:12px;color:#6f7887;font-size:11px}
+
+@media(max-width:900px){.discovery-section{padding:0 14px;margin-bottom:20px}.discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.discovery-card{min-height:76px;padding:13px 14px;border-radius:16px}.discovery-icon{width:42px;height:42px;border-radius:13px;font-size:20px}.discovery-card strong{font-size:15px}.discovery-count{min-width:31px;height:31px;font-size:10px}}
+@media(max-width:420px){.discovery-section{padding:0 12px}.discovery-grid{gap:8px}.discovery-card{grid-template-columns:auto 1fr;min-height:72px;padding:11px 12px}.discovery-count{position:absolute;top:8px;right:8px;min-width:25px;height:25px;padding:0 6px;background:rgba(8,10,14,.7)}.discovery-icon{width:38px;height:38px;font-size:18px}.discovery-card strong{font-size:14px}.discovery-card small{font-size:9px;max-width:85px}.discovery-card.nightlife:after{display:none}}
