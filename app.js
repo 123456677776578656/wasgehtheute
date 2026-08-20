@@ -102,8 +102,9 @@ function render(){
   result.textContent=`${arr.length} Veranstaltung${arr.length===1?'':'en'} · ${area.value||'alle Regionen'}`;
 }
 
-function setCategory(cat){activeCategory=cat;document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));render();}
-function setPeriod(p){activePeriod=p;document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period===p));document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',b.dataset.bottom===p || (p==='all'&&b.dataset.bottom==='all')));render();}
+function clearBottomSpecial(){document.getElementById('bottomFavorites')?.classList.remove('active');}
+function setCategory(cat){activeCategory=cat;clearBottomSpecial();document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));render();}
+function setPeriod(p){activePeriod=p;clearBottomSpecial();document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period===p));document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',b.dataset.bottom===p || (p==='all'&&b.dataset.bottom==='all')));render();}
 
 const catWrap=document.getElementById('categoryButtons');
 topCats.forEach(cat=>{
@@ -114,12 +115,13 @@ topCats.forEach(cat=>{
 
 document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>setPeriod(b.dataset.period));
 document.querySelectorAll('[data-bottom]').forEach(b=>b.onclick=()=>setPeriod(b.dataset.bottom));
-function resetAll(){q.value='';area.value='';place.value='';sort.value='date';activeCategory='Alle';activePeriod='all';refreshPlaces();document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat==='Alle'));document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period==='all'));document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',b.dataset.bottom==='all'));render();}
+function resetAll(){q.value='';area.value='';place.value='';sort.value='date';activeCategory='Alle';activePeriod='all';refreshPlaces();clearBottomSpecial();document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat==='Alle'));document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period==='all'));document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',b.dataset.bottom==='all'));render();}
 document.getElementById('resetTop').onclick=resetAll;document.getElementById('clearSide').onclick=resetAll;
-q.addEventListener('input',render);area.addEventListener('change',()=>{refreshPlaces();render();});place.addEventListener('change',render);sort.addEventListener('change',render);
+q.addEventListener('input',()=>{clearBottomSpecial();render();});area.addEventListener('change',()=>{clearBottomSpecial();refreshPlaces();render();});place.addEventListener('change',()=>{clearBottomSpecial();render();});sort.addEventListener('change',render);
 document.getElementById('gridBtn').onclick=()=>{grid.classList.remove('list-view');document.getElementById('gridBtn').classList.add('active');document.getElementById('listBtn').classList.remove('active');};
 document.getElementById('listBtn').onclick=()=>{grid.classList.add('list-view');document.getElementById('listBtn').classList.add('active');document.getElementById('gridBtn').classList.remove('active');};
-document.getElementById('bottomSearch').onclick=()=>{q.focus();window.scrollTo({top:q.getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
+document.getElementById('bottomSearch').onclick=()=>{clearBottomSpecial();q.focus();window.scrollTo({top:q.getBoundingClientRect().top+window.scrollY-90,behavior:'smooth'});};
+document.getElementById('bottomFavorites').onclick=()=>{document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.remove('active'));document.getElementById('bottomFavorites').classList.add('active');document.getElementById('favoritesBtn')?.click();};
 
 document.getElementById('total').textContent=DATA.filter(e=>e.end>=TODAY).length;
 document.getElementById('places').textContent=new Set(DATA.filter(e=>e.end>=TODAY).map(e=>e.city)).size;
@@ -139,9 +141,10 @@ async function updateGlobalCounter(){
 updateGlobalCounter();
 
 const modal=document.getElementById('actionModal'), requestType=document.getElementById('requestType');
-function openAction(type){requestType.value=type;document.getElementById('actionTitle').textContent=type==='Event melden'?'Event melden':'Werbeanzeige anfragen';document.getElementById('demoMsg').style.display='none';modal.classList.add('open');}
+function openAction(type){requestType.value=type;document.getElementById('actionTitle').textContent=type==='Event melden'?'Event melden':'Werbeanzeige anfragen';document.getElementById('demoMsg').style.display='none';modal.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('formName')?.focus(),80);}
+function closeAction(){modal.classList.remove('open');document.body.style.overflow='';}
 document.getElementById('reportEventBtn').onclick=()=>openAction('Event melden');document.getElementById('advertBtn').onclick=()=>openAction('Werbeanzeige anfragen');document.querySelectorAll('.adRequestBtn').forEach(b=>b.onclick=()=>openAction('Werbeanzeige anfragen'));
-document.getElementById('actionClose').onclick=()=>modal.classList.remove('open');modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});document.getElementById('actionForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoMsg').style.display='block';});
+document.getElementById('actionClose').onclick=closeAction;modal.addEventListener('click',e=>{if(e.target===modal)closeAction()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeAction()});document.getElementById('actionForm').addEventListener('submit',e=>{e.preventDefault();document.getElementById('demoMsg').style.display='block';});
 
 let deferredPrompt=null;
 const installButtons=[document.getElementById('installPwaBtn'),document.getElementById('installPwaBtnBottom')];
