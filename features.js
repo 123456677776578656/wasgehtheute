@@ -2,7 +2,7 @@
 const DATA=window.EVENTS||[];
 const CFG=window.WGH_CONFIG||{};
 const NS=CFG.analyticsNamespace||'wasgehtheute.ch';
-const favKey='wgh_favorites_v1';
+const favKey='wgh_favorites_v1',popKey='wgh_popularity_cache_v1',popTtl=10*60*1000;
 let userPos=null;
 const slugify=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const eid=e=>slugify(`${e.title}-${e.city}-${e.start}`);
@@ -16,10 +16,10 @@ function calendarText(e){const clean=x=>String(x||'').replace(/[\\;,]/g,m=>'\\'+
 function downloadCalendar(e){const b=new Blob([calendarText(e)],{type:'text/calendar;charset=utf-8'}),a=document.createElement('a'),url=URL.createObjectURL(b);a.href=url;a.download=`${slugify(e.title)||'event'}.ics`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 async function shareEvent(e){const payload={title:e.title,text:`${e.title} – ${e.date} in ${e.city}`,url:eventUrl(e)};if(navigator.share){try{await navigator.share(payload);return}catch(err){if(err?.name==='AbortError')return}}try{await navigator.clipboard.writeText(payload.url);alert('Link kopiert ✅')}catch{prompt('Link kopieren:',payload.url)}}
 function decorateCards(){
-  document.querySelectorAll('.card').forEach(card=>{
-    if(card.dataset.enhanced)return;
+  const savedSet=new Set(getFavs());
+  document.querySelectorAll('.card:not([data-enhanced])').forEach(card=>{
     const e=eventFromCard(card),body=card.querySelector('.card-body');if(!e||!body)return;
-    card.dataset.enhanced='1';const id=eid(e),saved=getFavs().includes(id);
+    card.dataset.enhanced='1';const id=eid(e),saved=savedSet.has(id);
     const row=document.createElement('div');row.className='quick-actions';row.innerHTML=`<button type="button" class="quick-btn fav-btn" aria-label="Favorit speichern" aria-pressed="${saved}">${saved?'❤️':'🤍'}</button><button type="button" class="quick-btn share-btn" aria-label="Event teilen">📤</button><button type="button" class="quick-btn cal-btn" aria-label="Zum Kalender hinzufügen">📅</button>${e.ticket?'<a class="quick-btn ticket-btn" target="_blank" rel="noopener noreferrer" aria-label="Tickets">🎟️</a>':''}`;body.appendChild(row);
     const fav=row.querySelector('.fav-btn');fav.onclick=()=>{let f=getFavs();f=f.includes(id)?f.filter(x=>x!==id):[...f,id];setFavs(f);const yes=f.includes(id);fav.textContent=yes?'❤️':'🤍';fav.setAttribute('aria-pressed',String(yes))};
     row.querySelector('.share-btn').onclick=()=>shareEvent(e);row.querySelector('.cal-btn').onclick=()=>downloadCalendar(e);
@@ -33,16 +33,22 @@ function requestLocation(){if(!navigator.geolocation){alert('Standort wird von d
 document.getElementById('nearMeBtn')?.addEventListener('click',requestLocation);
 function popularCard(e,count,i){return `<article class="top-card" data-event-id="${eid(e)}"><div class="top-badge">${i===0?'🔥 Am beliebtesten':'⭐ Beliebt'} · ${count} Klick${count===1?'':'s'}</div><div class="top-emoji">${e.emoji||'📅'}</div><div class="top-copy"><small>📍 ${e.city} · ${e.date}</small><h3><a href="${eventUrl(e)}">${e.title}</a></h3><p>${e.desc||''}</p><a class="top-link" href="${eventUrl(e)}">Event ansehen →</a></div></article>`}
 function popularSide(e,count){return `<a class="desktop-popular-item" href="${eventUrl(e)}"><span class="desktop-popular-thumb">${e.emoji||'📅'}</span><span class="desktop-popular-copy"><b>${e.title}</b><span>⌖ ${e.city} · ${e.date}</span><em>${count} Klick${count===1?'':'s'}</em></span></a>`}
-async function popularity(){
-  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date()),future=DATA.filter(e=>e.end>=today).slice(0,24);
-  const scores=await Promise.all(future.map(async e=>({e,count:await counter('event-'+eid(e),false)})));
-  scores.sort((a,b)=>b.count-a.count||a.e.start.localeCompare(b.e.start));
-  const ranked=scores.filter(x=>x.count>0),top=ranked.slice(0,3),side=ranked.slice(0,5);
-  const wrap=document.getElementById('topGrid');if(top.length&&wrap){wrap.innerHTML=top.map((x,i)=>popularCard(x.e,x.count,i)).join('');const text=document.getElementById('highlightText');if(text)text.textContent='Diese Events wurden am häufigsten geöffnet.'}
+function renderPopularity(rows){
+  const ranked=rows.map(x=>({e:byId.get(x.id),count:Number(x.count)||0})).filter(x=>x.e&&x.count>0).sort((a,b)=>b.count-a.count||a.e.start.localeCompare(b.e.start));
+  const top=ranked.slice(0,3),side=ranked.slice(0,5),wrap=document.getElementById('topGrid');
+  if(top.length&&wrap){wrap.innerHTML=top.map((x,i)=>popularCard(x.e,x.count,i)).join('');const text=document.getElementById('highlightText');if(text)text.textContent='Diese Events wurden am häufigsten geöffnet.'}
   const pop=document.getElementById('desktopPopularGrid');if(side.length&&pop)pop.innerHTML=side.map(x=>popularSide(x.e,x.count)).join('');
   window.dispatchEvent(new Event('wgh:popular-ready'));
 }
-if('requestIdleCallback' in window)requestIdleCallback(()=>popularity(),{timeout:1800});else setTimeout(popularity,700);
+function readPopularityCache(){try{const c=JSON.parse(sessionStorage.getItem(popKey)||'null');return c&&Date.now()-c.time<popTtl&&Array.isArray(c.rows)?c.rows:null}catch{return null}}
+function writePopularityCache(rows){try{sessionStorage.setItem(popKey,JSON.stringify({time:Date.now(),rows}))}catch{}}
+async function popularity(){
+  const cached=readPopularityCache();if(cached){renderPopularity(cached);return}
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date()),future=DATA.filter(e=>e.end>=today).sort((a,b)=>String(a.start).localeCompare(String(b.start))).slice(0,16);
+  const rows=await Promise.all(future.map(async e=>({id:eid(e),count:await counter('event-'+eid(e),false)})));
+  writePopularityCache(rows);renderPopularity(rows);
+}
+if('requestIdleCallback' in window)requestIdleCallback(()=>popularity(),{timeout:3500});else setTimeout(popularity,1800);
 async function submitRequest(form){const status=document.getElementById('demoMsg');if(!status)return;const get=id=>document.getElementById(id)?.value?.trim?.()||'';const payload={name:get('formName'),email:get('formEmail'),type:get('requestType'),subject:get('formSubject'),place:get('formPlace'),date:get('formDate'),link:get('formLink'),message:get('formMessage'),page:location.href,createdAt:new Date().toISOString()};status.style.display='block';if(CFG.formEndpoint){status.textContent='Wird gesendet…';try{const r=await fetch(CFG.formEndpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw new Error();status.textContent='✅ Anfrage wurde gesendet.';form.reset()}catch{status.textContent='⚠️ Versand fehlgeschlagen. Bitte später erneut versuchen.'}return}status.textContent='⚠️ Formularversand ist momentan nicht verfügbar.'}
 const form=document.getElementById('actionForm');if(form){form.addEventListener('submit',e=>{e.preventDefault();submitRequest(form)})}
 })();
