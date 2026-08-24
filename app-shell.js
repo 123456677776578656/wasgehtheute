@@ -5,48 +5,23 @@ const backdrop=document.getElementById('mobileDrawerBackdrop');
 const floating=document.getElementById('floatingActions');
 const discoverBtn=document.querySelector('[data-bottom="all"]');
 const favoriteBottom=document.getElementById('bottomFavorites');
-
 function loadQuickRegionStyles(){if(document.querySelector('link[data-quick-region-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./quick-regions.css?v=1';l.dataset.quickRegionStyle='1';document.head.appendChild(l)}
-function buildQuickRegions(){
-  const search=q?.closest('.search-strip');if(!search||document.querySelector('.quick-region-wrap'))return;
-  const wrap=document.createElement('div');wrap.className='quick-region-wrap';wrap.setAttribute('aria-label','Orte schnell auswählen');
-  [['Buchs','Buchs'],['Sargans','Sargans'],['Mels','Mels'],['Zürich','Zürich'],['Chur','Chur'],['Arbon','Arbon'],['Alle','Alle']].forEach(([label,val])=>{const b=document.createElement('button');b.type='button';b.className='quick-region-btn';b.dataset.quickPlace=val;b.textContent=label;wrap.appendChild(b)});
-  search.insertAdjacentElement('afterend',wrap);
-  wrap.querySelectorAll('[data-quick-place]').forEach(btn=>btn.addEventListener('click',()=>selectQuickPlace(btn.dataset.quickPlace,btn)));
-}
-function selectQuickPlace(val,btn){
-  document.querySelectorAll('[data-quick-place]').forEach(b=>b.classList.toggle('active',b.dataset.quickPlace===val));
-  const area=document.getElementById('area'),place=document.getElementById('place');
-  if(val==='Alle'){document.getElementById('resetTop')?.click();return}
-  if(place){let exists=[...place.options].some(o=>o.value===val);if(!exists){const o=document.createElement('option');o.value=val;o.textContent=val;place.appendChild(o)}place.value=val;place.dispatchEvent(new Event('change',{bubbles:true}))}
-  document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
-}
+function buildQuickRegions(){const search=q?.closest('.search-strip');if(!search||document.querySelector('.quick-region-wrap'))return;const wrap=document.createElement('div');wrap.className='quick-region-wrap';wrap.setAttribute('aria-label','Orte schnell auswählen');[['Buchs','Buchs'],['Sargans','Sargans'],['Mels','Mels'],['Zürich','Zürich'],['Chur','Chur'],['Arbon','Arbon'],['Alle','Alle']].forEach(([label,val])=>{const b=document.createElement('button');b.type='button';b.className='quick-region-btn';b.dataset.quickPlace=val;b.textContent=label;wrap.appendChild(b)});search.insertAdjacentElement('afterend',wrap);wrap.querySelectorAll('[data-quick-place]').forEach(btn=>btn.addEventListener('click',()=>selectQuickPlace(btn.dataset.quickPlace)))}
+function selectQuickPlace(val){document.querySelectorAll('[data-quick-place]').forEach(b=>b.classList.toggle('active',b.dataset.quickPlace===val));const place=document.getElementById('place');if(val==='Alle'){document.getElementById('resetTop')?.click();return}if(place){let exists=[...place.options].some(o=>o.value===val);if(!exists){const o=document.createElement('option');o.value=val;o.textContent=val;place.appendChild(o)}place.value=val;place.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function loadRuntimeCleanup(){if(document.querySelector('script[data-runtime-cleanup]'))return;const s=document.createElement('script');s.src='./runtime-cleanup.js?v=1';s.dataset.runtimeCleanup='1';document.body.appendChild(s)}
 function scrollSearch(){if(!q)return;const y=q.getBoundingClientRect().top+window.scrollY-126;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});setTimeout(()=>q.focus({preventScroll:true}),220)}
 function closeCategories(){filters?.classList.remove('open');document.body.classList.remove('categories-open')}
 function toggleCategories(){const open=filters?.classList.toggle('open');document.body.classList.toggle('categories-open',!!open)}
 function setBottomActive(button){document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));button?.classList.add('active')}
-function syncQuick(){
-  document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.classList.contains('active')));
-  document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.classList.contains('active')));
-}
+function syncQuick(){document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.classList.contains('active')));document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.classList.toggle('active',!!document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.classList.contains('active')))}
 document.querySelectorAll('[data-quick-period]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector(`[data-period="${btn.dataset.quickPeriod}"]`)?.click();document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});setBottomActive(discoverBtn);requestAnimationFrame(syncQuick)}));
 document.querySelectorAll('[data-quick-cat]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector(`[data-cat="${btn.dataset.quickCat}"]`)?.click();document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});setBottomActive(discoverBtn);requestAnimationFrame(syncQuick)}));
-document.getElementById('quickSearchBtn')?.addEventListener('click',scrollSearch);
-document.getElementById('mobileSearchTop')?.addEventListener('click',scrollSearch);
-document.getElementById('floatSearchBtn')?.addEventListener('click',scrollSearch);
-document.getElementById('bottomSearch')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);scrollSearch()});
-document.getElementById('mobileMenuBtn')?.addEventListener('click',toggleCategories);
-document.getElementById('bottomCategories')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);toggleCategories()});
-backdrop?.addEventListener('click',closeCategories);
-filters?.addEventListener('click',e=>{if(e.target.closest('.mobile-chip')){setBottomActive(discoverBtn);setTimeout(closeCategories,60)}});
+document.getElementById('quickSearchBtn')?.addEventListener('click',scrollSearch);document.getElementById('mobileSearchTop')?.addEventListener('click',scrollSearch);document.getElementById('floatSearchBtn')?.addEventListener('click',scrollSearch);document.getElementById('bottomSearch')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);scrollSearch()});
+document.getElementById('mobileMenuBtn')?.addEventListener('click',toggleCategories);document.getElementById('bottomCategories')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);toggleCategories()});backdrop?.addEventListener('click',closeCategories);filters?.addEventListener('click',e=>{if(e.target.closest('.mobile-chip')){setBottomActive(discoverBtn);setTimeout(closeCategories,60)}});
 document.getElementById('bottomSubmit')?.addEventListener('click',e=>{setBottomActive(e.currentTarget);document.getElementById('reportEventBtn')?.click()});
 function openFavorites(){window.WGH_APP?.showFavorites?.();setBottomActive(favoriteBottom)}
-document.getElementById('mobileFavoriteTop')?.addEventListener('click',openFavorites);
-favoriteBottom?.addEventListener('click',openFavorites);
-discoverBtn?.addEventListener('click',()=>{window.WGH_APP?.showAllEvents?.();setBottomActive(discoverBtn)});
-document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-let scrollQueued=false;
-window.addEventListener('scroll',()=>{if(scrollQueued)return;scrollQueued=true;requestAnimationFrame(()=>{floating?.classList.toggle('visible',window.scrollY>520);scrollQueued=false})},{passive:true});
+document.getElementById('mobileFavoriteTop')?.addEventListener('click',openFavorites);favoriteBottom?.addEventListener('click',openFavorites);discoverBtn?.addEventListener('click',()=>{window.WGH_APP?.showAllEvents?.();setBottomActive(discoverBtn)});document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+let scrollQueued=false;window.addEventListener('scroll',()=>{if(scrollQueued)return;scrollQueued=true;requestAnimationFrame(()=>{floating?.classList.toggle('visible',window.scrollY>520);scrollQueued=false})},{passive:true});
 const observer=new MutationObserver(()=>requestAnimationFrame(syncQuick));document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
-loadQuickRegionStyles();buildQuickRegions();syncQuick();
+loadQuickRegionStyles();buildQuickRegions();syncQuick();loadRuntimeCleanup();
 })();
