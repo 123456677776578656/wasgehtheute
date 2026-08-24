@@ -1,7 +1,9 @@
 (()=>{
-const map=new Map((window.EVENTS||[]).map(e=>[String((window.WGH_APP?.eventId?.(e))||'').trim(),e]));
+const slug=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const id=e=>slug(`${e.title}-${e.city}-${e.start}`);
+const map=new Map((window.EVENTS||[]).map(e=>[id(e),e]));
 function warnFor(e){if(!e?.quality_status)return null;const n=document.createElement('div');n.className='quality-warning';let title='Termin prüfen';if(e.quality_status==='cancelled-warning'){n.classList.add('cancelled');title='Mögliche Absage erkannt'}else if(e.quality_status==='source-warning'){n.classList.add('source');title='Quelle prüfen'}else if(e.quality_status==='changed-warning'){title='Mögliche Terminänderung'}else return null;n.innerHTML=`<span>⚠️</span><span><strong>${title}</strong><br>${e.quality_note||'Bitte Originalquelle prüfen.'}</span>`;return n}
 function scanCards(){document.querySelectorAll('.card[data-event-id]:not([data-quality-ui])').forEach(card=>{card.dataset.qualityUi='1';const e=map.get(card.dataset.eventId);const w=warnFor(e);if(!w)return;card.classList.add('has-quality-warning');if(e.quality_status==='cancelled-warning')card.classList.add('has-cancel-warning');card.querySelector('.card-body')?.prepend(w)})}
-function scanDetail(){const id=new URLSearchParams(location.search).get('id');if(!id)return;const e=(window.EVENTS||[]).find(x=>{const sid=window.WGH_APP?.eventId?.(x);return sid===id})||null;if(!e)return;const host=document.querySelector('.detail-content');if(!host||host.querySelector('.detail-quality-warning'))return;const w=warnFor(e);if(w){w.classList.add('detail-quality-warning');host.prepend(w)}}
+function scanDetail(){const eventId=new URLSearchParams(location.search).get('id');if(!eventId)return;const e=map.get(eventId);if(!e)return;const host=document.querySelector('.detail-content');if(!host||host.querySelector('.detail-quality-warning'))return;const w=warnFor(e);if(w){w.classList.add('detail-quality-warning');host.prepend(w)}}
 new MutationObserver(()=>requestAnimationFrame(()=>{scanCards();scanDetail()})).observe(document.body,{childList:true,subtree:true});scanCards();scanDetail();
 })();
