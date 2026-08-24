@@ -1,0 +1,31 @@
+name: Event Health Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 5 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  check-events:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check event sources
+        run: python scripts/check_events.py
+      - name: Commit updated event health
+        run: |
+          if git diff --quiet -- event-health.js; then
+            echo "No event-health changes"
+            exit 0
+          fi
+          git config user.name "wasgehtheute-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add event-health.js
+          git commit -m "Event-Quellen automatisch prüfen"
+          git push
