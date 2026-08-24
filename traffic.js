@@ -9,17 +9,17 @@ async function read(action,key,opts=''){try{const q=opts?`${opts}&readOnly=true`
 function show(id,n){const el=document.getElementById(id);if(el)el.textContent=n===null?'–':n.toLocaleString('de-CH')}
 async function run(){
  const day=swissDate(),week=weekKey();
- // Every new page visit increments these counters exactly once.
- const [viewsToday,viewsWeek,uniqueToday]=await Promise.all([
+ const [viewsToday,viewsWeek,uniqueToday,total] = await Promise.all([
    hit('pageview-day',day),
    hit('pageview-week',week),
-   hit('visitor-day',day,'unique=true')
+   hit('visitor-day',day,'unique=true'),
+   hit('pageview-total','all')
  ]);
  show('viewsToday',viewsToday);
  show('viewsWeek',viewsWeek);
  show('visitorsToday',uniqueToday);
- const global=await read('pageview-day',day);
- show('globalViewCount',global);
+ show('viewsTotal',total);
+ show('globalViewCount',viewsToday);
 }
 run();
 setInterval(run,60000);
