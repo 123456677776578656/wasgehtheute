@@ -11,6 +11,7 @@ function selectQuickPlace(val){document.querySelectorAll('[data-quick-place]').f
 function loadRuntimeCleanup(){if(document.querySelector('script[data-runtime-cleanup]'))return;const s=document.createElement('script');s.src='./runtime-cleanup.js?v=1';s.dataset.runtimeCleanup='1';document.body.appendChild(s)}
 function loadMobileFeed(){if(window.innerWidth>820||document.querySelector('script[data-mobile-feed]'))return;const s=document.createElement('script');s.src='./mobile-feed.js?v=2';s.dataset.mobileFeed='1';document.body.appendChild(s)}
 function loadEventMap(){if(document.querySelector('script[data-event-map]'))return;const s=document.createElement('script');s.src='./event-map.js?v=1';s.dataset.eventMap='1';document.body.appendChild(s)}
+function loadVisitorWidget(){if(document.querySelector('script[data-visitor-widget]'))return;const s=document.createElement('script');s.src='./visitor-widget.js?v=1';s.dataset.visitorWidget='1';document.body.appendChild(s)}
 function scrollSearch(){if(!q)return;const y=q.getBoundingClientRect().top+window.scrollY-126;window.scrollTo({top:Math.max(0,y),behavior:'smooth'});setTimeout(()=>q.focus({preventScroll:true}),220)}
 function closeCategories(){filters?.classList.remove('open');document.body.classList.remove('categories-open')}
 function toggleCategories(){const open=filters?.classList.toggle('open');document.body.classList.toggle('categories-open',!!open)}
@@ -25,5 +26,5 @@ function openFavorites(){window.WGH_APP?.showFavorites?.();setBottomActive(favor
 document.getElementById('mobileFavoriteTop')?.addEventListener('click',openFavorites);favoriteBottom?.addEventListener('click',openFavorites);discoverBtn?.addEventListener('click',()=>{window.WGH_APP?.showAllEvents?.();setBottomActive(discoverBtn)});document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 let scrollQueued=false;window.addEventListener('scroll',()=>{if(scrollQueued)return;scrollQueued=true;requestAnimationFrame(()=>{floating?.classList.toggle('visible',window.scrollY>520);scrollQueued=false})},{passive:true});
 const observer=new MutationObserver(()=>requestAnimationFrame(syncQuick));document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
-loadQuickRegionStyles();buildQuickRegions();syncQuick();loadRuntimeCleanup();loadMobileFeed();loadEventMap();
+loadQuickRegionStyles();buildQuickRegions();syncQuick();loadRuntimeCleanup();loadMobileFeed();loadEventMap();loadVisitorWidget();
 })();
