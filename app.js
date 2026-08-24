@@ -21,10 +21,12 @@ function overlaps(e,a,b){return e.start<=b&&e.end>=a}
 function thisWeekend(){const d=new Date(TODAY+'T12:00:00'),dow=d.getDay();let add=(5-dow+7)%7;if(dow===6)add=-1;if(dow===0)add=-2;const fri=new Date(d);fri.setDate(d.getDate()+add);const sun=new Date(fri);sun.setDate(fri.getDate()+2);return[ymd(fri),ymd(sun)]}
 function within30(e){const end=new Date(TODAY+'T12:00:00');end.setDate(end.getDate()+30);return e.start<=ymd(end)&&e.end>=TODAY}
 function isToday(e){return e.start<=TODAY&&e.end>=TODAY}
+function tomorrow(){const d=new Date(TODAY+'T12:00:00');d.setDate(d.getDate()+1);return ymd(d)}
+function dateLabel(e){if(isToday(e))return '🔥 Heute';if(e.start===tomorrow())return '🌤️ Morgen';const [fri,sun]=thisWeekend();if(overlaps(e,fri,sun))return '🗓️ Dieses Wochenende';return e.date||e.start||''}
 function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function eventId(e){return slugify(`${e.title}-${e.city}-${e.start}`)}
 function eventUrl(e){return `event.html?id=${encodeURIComponent(eventId(e))}`}
-function esc(s){return String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch]))}
 function normalizeText(s){return String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim()}
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
 function getFavs(){try{const v=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
@@ -47,10 +49,10 @@ function refreshPlaces(){
 }
 
 function card(e){
-  const today=isToday(e),cats=Array.isArray(e.cats)?e.cats:[],id=eventId(e),distance=distances[id];
-  const price=eventPrice(e),ticket=e.ticket?'🎟 Tickets':'ℹ Infos';
+  const cats=Array.isArray(e.cats)?e.cats:[],id=eventId(e),distance=distances[id];
+  const price=eventPrice(e),ticket=e.ticket?'🎟 Tickets':'ℹ Infos',label=dateLabel(e);
   const distanceHtml=Number.isFinite(distance)?`<span class="distance-chip">⌖ ${distance.toFixed(1)} km entfernt</span>`:'';
-  return `<article class="card" data-event-id="${esc(id)}"><div class="card-visual"><span class="date-badge ${today?'today':''}">${today?'🔥 Heute':esc(e.date||e.start)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${esc(e.source_type||'Quelle geprüft')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Details</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
+  return `<article class="card" data-event-id="${esc(id)}"><div class="card-visual"><span class="date-badge ${isToday(e)?'today':''}">${esc(label)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${esc(e.source_type||'Quelle geprüft')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Details</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
 }
 function topCard(e,badge){return `<article class="top-card" data-event-id="${esc(eventId(e))}"><div class="top-badge">${esc(badge)}</div><div class="top-emoji">${esc(e.emoji||'📅')}</div><div class="top-copy"><small>📍 ${esc(e.city||'')} · ${esc(e.date||e.start||'')}</small><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p>${esc(e.desc||'')}</p><a class="top-link" href="${eventUrl(e)}">Ansehen →</a></div></article>`}
 function renderHighlights(){
@@ -77,6 +79,7 @@ function currentFilteredEvents(){
   let arr=DATA.filter(e=>{
     const cats=Array.isArray(e.cats)?e.cats:[];
     if(!e.start||!e.end||e.end<TODAY)return false;
+    if(e.quality_status==='cancelled-warning')return false;
     if(favoritesOnly&&!favSet.has(eventId(e)))return false;
     if(activeCategory!=='Alle'&&!cats.includes(activeCategory))return false;
     if(areaValue&&e.region!==areaValue)return false;
@@ -141,7 +144,7 @@ sort?.addEventListener('change',()=>{leaveFavorites();distanceMode=false;render(
 document.getElementById('gridBtn')?.addEventListener('click',()=>{grid?.classList.remove('list-view');document.getElementById('gridBtn')?.classList.add('active');document.getElementById('listBtn')?.classList.remove('active')});
 document.getElementById('listBtn')?.addEventListener('click',()=>{grid?.classList.add('list-view');document.getElementById('listBtn')?.classList.add('active');document.getElementById('gridBtn')?.classList.remove('active')});
 
-const future=DATA.filter(e=>e.end>=TODAY);setText('total',future.length);setText('places',new Set(future.map(e=>e.city).filter(Boolean)).size);setText('categories',new Set(future.flatMap(e=>e.cats||[])).size);setText('lastUpdated',new Intl.DateTimeFormat('de-CH',{dateStyle:'medium',timeZone:'Europe/Zurich'}).format(new Date()));
+const future=DATA.filter(e=>e.end>=TODAY&&e.quality_status!=='cancelled-warning');setText('total',future.length);setText('places',new Set(future.map(e=>e.city).filter(Boolean)).size);setText('categories',new Set(future.flatMap(e=>e.cats||[])).size);setText('lastUpdated',new Intl.DateTimeFormat('de-CH',{dateStyle:'medium',timeZone:'Europe/Zurich'}).format(new Date()));
 function updateGlobalCounter(){
   const el=document.getElementById('globalViewCount');if(!el)return;
   const row=el.closest('.stats-row');if(row&&getComputedStyle(row).display==='none')return;
