@@ -5,9 +5,64 @@ const backdrop=document.getElementById('mobileDrawerBackdrop');
 const floating=document.getElementById('floatingActions');
 const discoverBtn=document.querySelector('[data-bottom="all"]');
 const favoriteBottom=document.getElementById('bottomFavorites');
+const QUICK_AREA={
+  Buchs:'Rheintal / Werdenberg / Sargans / Wildhaus',
+  Sargans:'Rheintal / Werdenberg / Sargans / Wildhaus',
+  Mels:'Rheintal / Werdenberg / Sargans / Wildhaus',
+  'Zürich':'Kanton Zürich',
+  Chur:'Chur / Graubünden',
+  Arbon:'Kanton Thurgau'
+};
+const QUICK_CITY={
+  Buchs:['Buchs SG','Buchs','Werdenberg / Buchs'],
+  Sargans:['Sargans'],
+  Mels:['Mels'],
+  'Zürich':['Zürich','Zurich'],
+  Chur:['Chur'],
+  Arbon:['Arbon']
+};
+const norm=s=>String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim();
 function loadQuickRegionStyles(){if(document.querySelector('link[data-quick-region-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='./quick-regions.css?v=1';l.dataset.quickRegionStyle='1';document.head.appendChild(l)}
-function buildQuickRegions(){const search=q?.closest('.search-strip');if(!search||document.querySelector('.quick-region-wrap'))return;const wrap=document.createElement('div');wrap.className='quick-region-wrap';wrap.setAttribute('aria-label','Orte schnell auswählen');[['Buchs','Buchs'],['Sargans','Sargans'],['Mels','Mels'],['Zürich','Zürich'],['Chur','Chur'],['Arbon','Arbon'],['Alle','Alle']].forEach(([label,val])=>{const b=document.createElement('button');b.type='button';b.className='quick-region-btn';b.dataset.quickPlace=val;b.textContent=label;wrap.appendChild(b)});search.insertAdjacentElement('afterend',wrap);wrap.querySelectorAll('[data-quick-place]').forEach(btn=>btn.addEventListener('click',()=>selectQuickPlace(btn.dataset.quickPlace)))}
-function selectQuickPlace(val){document.querySelectorAll('[data-quick-place]').forEach(b=>b.classList.toggle('active',b.dataset.quickPlace===val));const place=document.getElementById('place');if(val==='Alle'){document.getElementById('resetTop')?.click();return}if(place){let exists=[...place.options].some(o=>o.value===val);if(!exists){const o=document.createElement('option');o.value=val;o.textContent=val;place.appendChild(o)}place.value=val;place.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function buildQuickRegions(){const search=q?.closest('.search-strip');if(!search||document.querySelector('.quick-region-wrap'))return;const wrap=document.createElement('div');wrap.className='quick-region-wrap';wrap.setAttribute('aria-label','Orte schnell auswählen');[['Alle',''],['Buchs','Buchs'],['Sargans','Sargans'],['Mels','Mels'],['Zürich','Zürich'],['Chur','Chur'],['Arbon','Arbon']].forEach(([label,val])=>{const b=document.createElement('button');b.type='button';b.className='quick-region-btn'+(val===''?' active':'');b.dataset.placeShort=val;b.textContent=label;wrap.appendChild(b)});search.insertAdjacentElement('afterend',wrap)}
+function setQuickActive(val){document.querySelectorAll('[data-place-short],[data-quick-place]').forEach(b=>{const v=b.dataset.placeShort??b.dataset.quickPlace??'';b.classList.toggle('active',v===val||(val===''&&v==='Alle'))})}
+function findPlaceOption(select,val){if(!select)return null;const candidates=QUICK_CITY[val]||[val];for(const candidate of candidates){const exact=[...select.options].find(o=>norm(o.value||o.textContent)===norm(candidate));if(exact)return exact}const target=norm(val);return [...select.options].find(o=>{const n=norm(o.value||o.textContent);return n.startsWith(target+' ')||n===target})||null}
+function selectQuickPlace(val){
+  const area=document.getElementById('area'),place=document.getElementById('place');
+  if(!val||val==='Alle'){
+    document.getElementById('resetTop')?.click();
+    setQuickActive('');
+    document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const areaName=QUICK_AREA[val]||'';
+  if(area&&areaName&&area.value!==areaName){
+    area.value=areaName;
+    area.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  requestAnimationFrame(()=>{
+    const option=findPlaceOption(place,val);
+    if(option){
+      place.value=option.value;
+      place.dispatchEvent(new Event('change',{bubbles:true}));
+    }else if(q){
+      q.value=val;
+      q.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    setQuickActive(val);
+    document.getElementById('events')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
+function bindQuickRegions(){
+  document.querySelectorAll('[data-place-short],[data-quick-place]').forEach(btn=>{
+    if(btn.dataset.quickBound==='1')return;
+    btn.dataset.quickBound='1';
+    btn.addEventListener('click',e=>{
+      e.preventDefault();
+      const val=btn.dataset.placeShort??btn.dataset.quickPlace??'';
+      selectQuickPlace(val);
+    });
+  });
+}
 function loadRuntimeCleanup(){if(document.querySelector('script[data-runtime-cleanup]'))return;const s=document.createElement('script');s.src='./runtime-cleanup.js?v=1';s.dataset.runtimeCleanup='1';document.body.appendChild(s)}
 function loadMobileFeed(){if(window.innerWidth>820||document.querySelector('script[data-mobile-feed]'))return;const s=document.createElement('script');s.src='./mobile-feed.js?v=2';s.dataset.mobileFeed='1';document.body.appendChild(s)}
 function loadEventMap(){if(document.querySelector('script[data-event-map]'))return;const s=document.createElement('script');s.src='./event-map.js?v=1';s.dataset.eventMap='1';document.body.appendChild(s)}
@@ -26,5 +81,5 @@ function openFavorites(){window.WGH_APP?.showFavorites?.();setBottomActive(favor
 document.getElementById('mobileFavoriteTop')?.addEventListener('click',openFavorites);favoriteBottom?.addEventListener('click',openFavorites);discoverBtn?.addEventListener('click',()=>{window.WGH_APP?.showAllEvents?.();setBottomActive(discoverBtn)});document.getElementById('floatTopBtn')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 let scrollQueued=false;window.addEventListener('scroll',()=>{if(scrollQueued)return;scrollQueued=true;requestAnimationFrame(()=>{floating?.classList.toggle('visible',window.scrollY>520);scrollQueued=false})},{passive:true});
 const observer=new MutationObserver(()=>requestAnimationFrame(syncQuick));document.querySelectorAll('#periodButtons,#categoryButtons').forEach(el=>observer.observe(el,{attributes:true,subtree:true,attributeFilter:['class']}));
-loadQuickRegionStyles();buildQuickRegions();syncQuick();loadRuntimeCleanup();loadMobileFeed();loadEventMap();loadTrafficFour();
+loadQuickRegionStyles();buildQuickRegions();bindQuickRegions();syncQuick();loadRuntimeCleanup();loadMobileFeed();loadEventMap();loadTrafficFour();
 })();
