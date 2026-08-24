@@ -10,16 +10,17 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>WasGehtHeute.ch – Events heute & am Wochenende</title>
-<link rel="stylesheet" href="style.css?v=6">
-<link rel="stylesheet" href="professional.css?v=6">
-<link rel="stylesheet" href="enhancements.css?v=2">
-<link rel="stylesheet" href="mobile-fix.css?v=2">
-<link rel="stylesheet" href="accessibility.css?v=2">
-<link rel="stylesheet" href="app-shell.css?v=3">
-<link rel="stylesheet" href="mockup.css?v=2">
-<link rel="stylesheet" href="compact-feed.css?v=2">
-<link rel="stylesheet" href="performance.css?v=1">
-<link rel="stylesheet" href="quality.css?v=1">
+<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="professional.css?v=7">
+<link rel="stylesheet" href="enhancements.css?v=3">
+<link rel="stylesheet" href="mobile-fix.css?v=3">
+<link rel="stylesheet" href="accessibility.css?v=3">
+<link rel="stylesheet" href="app-shell.css?v=4">
+<link rel="stylesheet" href="mockup.css?v=3">
+<link rel="stylesheet" href="compact-feed.css?v=3">
+<link rel="stylesheet" href="quick-regions.css?v=1">
+<link rel="stylesheet" href="performance.css?v=2">
+<link rel="stylesheet" href="quality.css?v=2">
 </head>
 <body class="mockup-ui">
 <div class="site-frame">
@@ -42,6 +43,15 @@
     <div class="feed-shell" id="top">
       <nav class="sticky-quicknav" aria-label="Schnellfilter"><button type="button" class="quicknav-btn active" data-quick-period="today">☀️ Heute</button><button type="button" class="quicknav-btn" data-quick-period="weekend">🗓 Wochenende</button><button type="button" class="quicknav-btn" data-quick-cat="Gratis">◇ Gratis</button><a class="quicknav-link" href="nightlife.html">⌁ Nightlife</a><button type="button" class="quicknav-btn quicknav-search" id="quickSearchBtn" aria-label="Suchen">⌕</button></nav>
       <section class="search-strip" aria-label="Events suchen"><label class="control">🔎<span class="visually-hidden">Event oder Ort suchen</span><input id="q" placeholder="Suche nach Events, Orten, Kategorien..." autocomplete="off" aria-label="Event oder Ort suchen"></label><label class="control">🗺️<span class="visually-hidden">Region auswählen</span><select id="area" aria-label="Region auswählen"><option value="">Alle Regionen</option><option>Rheintal / Werdenberg / Sargans / Wildhaus</option><option>Kanton Zürich</option><option>Chur / Graubünden</option><option>Kanton Thurgau</option></select></label><label class="control">📍<span class="visually-hidden">Ort auswählen</span><select id="place" aria-label="Ort auswählen"><option value="">Alle Orte</option></select></label><button type="button" class="primary" id="resetTop">Zurücksetzen</button></section>
+      <div class="quick-region-wrap" aria-label="Schnellauswahl Orte">
+        <button type="button" class="quick-region-btn active" data-place-short="">Alle</button>
+        <button type="button" class="quick-region-btn" data-place-short="Buchs">Buchs</button>
+        <button type="button" class="quick-region-btn" data-place-short="Sargans">Sargans</button>
+        <button type="button" class="quick-region-btn" data-place-short="Mels">Mels</button>
+        <button type="button" class="quick-region-btn" data-place-short="Zürich">Zürich</button>
+        <button type="button" class="quick-region-btn" data-place-short="Chur">Chur</button>
+        <button type="button" class="quick-region-btn" data-place-short="Arbon">Arbon</button>
+      </div>
       <section class="feature-toolbar" aria-label="Schnellzugriff"><button type="button" id="nearMeBtn">📍 Nähe</button><button type="button" id="favoritesBtn">❤️ Favoriten <span id="favoriteCount">0</span></button><a href="nightlife.html">🪩 Bars & Clubs</a></section>
       <div class="mobile-drawer-backdrop" id="mobileDrawerBackdrop"></div><div class="mobile-filter-scroll" id="mobileFilters" aria-label="Kategorien"></div>
       <section class="highlights-section" id="highlights"><div class="section-head"><div><h2>Beliebte Events</h2><p id="highlightText">Aktuelle Events für die nächsten Tage.</p></div></div><div class="highlight-grid" id="topGrid"></div></section>
@@ -58,5 +68,5 @@
 <div class="floating-actions" id="floatingActions"><button type="button" id="floatTopBtn" aria-label="Nach oben">↑</button><button type="button" class="float-search" id="floatSearchBtn" aria-label="Zur Suche">⌕</button></div>
 <nav class="bottom-nav" aria-label="Handy-Navigation"><button type="button" class="active" data-bottom="all"><span>⌂</span>Entdecken</button><button type="button" id="bottomFavorites"><span>♡</span>Favoriten</button><button type="button" class="bottom-submit" id="bottomSubmit"><span>＋</span>Einreichen</button><button type="button" id="bottomCategories"><span>▦</span>Kategorien</button><button type="button" id="bottomSearch"><span>⌕</span>Suchen</button></nav>
 <div class="modal" id="actionModal" role="dialog" aria-modal="true" aria-labelledby="actionTitle"><div class="modal-card"><button type="button" class="close" id="actionClose" aria-label="Formular schliessen">×</button><h3 id="actionTitle">Event melden</h3><p id="formStatusText">Fülle die wichtigsten Angaben aus. Wir prüfen den Event vor der Veröffentlichung.</p><form id="actionForm"><label>Name / Verein<input id="formName" required autocomplete="name" placeholder="Dein Name oder Verein"></label><label>E-Mail<input id="formEmail" type="email" required autocomplete="email" placeholder="name@beispiel.ch"></label><label>Art<select id="requestType"><option>Event melden</option><option>Werbeanzeige anfragen</option></select></label><label>Eventtitel<input id="formSubject" required placeholder="Name des Events"></label><label>Ort<input id="formPlace" placeholder="Ort"></label><label>Datum<input id="formDate" type="date"></label><label>Info-Link<input id="formLink" type="url" inputmode="url" placeholder="https://..."></label><label>Weitere Infos<textarea id="formMessage" required placeholder="Was sollte man wissen?"></textarea></label><button class="cta-btn" type="submit">Senden</button><div class="demo-msg" id="demoMsg" aria-live="polite"></div></form></div></div>
-<script src="events-1.js"></script><script src="events-2.js"></script><script src="events-3.js"></script><script src="events-nightlife.js"></script><script src="events-nightlife-extra.js"></script><script src="events-update-2026-08-24.js"></script><script src="events-sargans-mels.js"></script><script src="event-health.js?v=2"></script><script src="event-quality.js?v=1"></script><script src="locations.js"></script><script src="site-config.js"></script><script src="app.js?v=2"></script><script src="traffic.js"></script><script src="features.js"></script><script src="event-images.js"></script><script src="quality-ui.js?v=1"></script><script src="app-shell.js?v=3"></script><script src="mockup.js?v=2"></script>
+<script src="events-1.js"></script><script src="events-2.js"></script><script src="events-3.js"></script><script src="events-nightlife.js"></script><script src="events-nightlife-extra.js"></script><script src="events-update-2026-08-24.js"></script><script src="events-sargans-mels.js"></script><script src="event-health.js?v=3"></script><script src="event-quality.js?v=2"></script><script src="locations.js"></script><script src="site-config.js"></script><script src="app.js?v=3"></script><script src="smart-search.js?v=1"></script><script src="traffic.js?v=2"></script><script src="features.js?v=2"></script><script src="event-images.js?v=2"></script><script src="quality-ui.js?v=2"></script><script src="app-shell.js?v=4"></script><script src="mockup.js?v=3"></script>
 </body></html>
