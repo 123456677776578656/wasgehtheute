@@ -71,15 +71,21 @@ style.textContent=`
 }
 .traffic-auto{
  flex:0 0 auto!important;
- padding:7px 10px!important;
- border:1px solid rgba(255,255,255,.08)!important;
+ min-height:34px!important;
+ padding:7px 12px!important;
+ border:1px solid rgba(255,255,255,.10)!important;
  border-radius:999px!important;
- background:rgba(255,255,255,.035)!important;
- color:#8f9aab!important;
- font-size:8px!important;
- font-weight:850!important;
+ background:rgba(255,255,255,.045)!important;
+ color:#cbd5e1!important;
+ font-size:9px!important;
+ font-weight:900!important;
  white-space:nowrap!important;
+ cursor:pointer!important;
+ transition:transform .16s ease,background .16s ease,border-color .16s ease,color .16s ease!important;
 }
+.traffic-auto:hover{background:rgba(236,59,147,.10)!important;border-color:rgba(236,59,147,.26)!important;color:#fff!important;transform:translateY(-1px)!important}
+.traffic-auto:active{transform:translateY(0)!important}
+.traffic-auto:disabled{cursor:wait!important;opacity:.72!important;transform:none!important}
 .traffic-bottom-grid{
  display:grid!important;
  grid-template-columns:repeat(4,minmax(0,1fr))!important;
@@ -160,12 +166,16 @@ style.textContent=`
  .traffic-head{margin-bottom:12px!important}
  .traffic-head h3{font-size:17px!important}
  .traffic-head p{font-size:9px!important}
- .traffic-auto{display:none!important}
+ .traffic-auto{min-height:32px!important;padding:6px 10px!important;font-size:8px!important}
  .traffic-bottom-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
  .traffic-bottom .stat{grid-template-columns:36px minmax(0,1fr)!important;gap:9px!important;min-height:78px!important;padding:12px!important;border-radius:14px!important}
  .traffic-icon{width:36px!important;height:36px!important;border-radius:11px!important;font-size:16px!important}
  .traffic-bottom .stat strong{font-size:22px!important}
  .traffic-bottom .stat .traffic-label{font-size:8px!important;margin-top:5px!important}
+}
+@media(max-width:430px){
+ .traffic-head{align-items:flex-start!important}
+ .traffic-auto{margin-top:1px!important}
 }
 @media(max-width:380px){
  .traffic-bottom .stat{grid-template-columns:1fr!important;text-align:center!important;gap:7px!important}
@@ -189,7 +199,7 @@ shell.innerHTML=`
    <h3>WasGehtHeute.ch wird entdeckt</h3>
    <p>Die Zahlen aktualisieren sich automatisch.</p>
   </div>
-  <div class="traffic-auto">↻ Live aktualisiert</div>
+  <button type="button" class="traffic-auto" id="trafficRefreshBtn" aria-label="Statistik jetzt aktualisieren">↻ Aktualisieren</button>
  </div>
  <div class="traffic-bottom-grid">
   <div class="stat"><div class="traffic-icon">👤</div><div class="traffic-value"><strong id="visitorsToday">…</strong><span class="traffic-label">Besucher heute</span></div></div>
@@ -251,6 +261,19 @@ async function registerVisit(){
  ]);
  await refresh();
 }
+
+const refreshBtn=document.getElementById('trafficRefreshBtn');
+refreshBtn?.addEventListener('click',async()=>{
+ if(refreshBtn.disabled)return;
+ refreshBtn.disabled=true;
+ refreshBtn.textContent='↻ Aktualisiere…';
+ await refresh();
+ refreshBtn.textContent='✓ Aktualisiert';
+ setTimeout(()=>{
+  refreshBtn.textContent='↻ Aktualisieren';
+  refreshBtn.disabled=false;
+ },900);
+});
 
 registerVisit();
 setInterval(refresh,15000);
