@@ -2,6 +2,11 @@ name: Event Health Check
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'events-*.js'
+      - 'scripts/check_events.py'
+      - '.github/workflows/event-health.yml'
   schedule:
     - cron: '20 5 * * *'
 
