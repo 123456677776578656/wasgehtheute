@@ -42,8 +42,15 @@ function matchesSearch(e,term){
 function refreshPlaces(){
   if(!place)return;
   const current=place.value,areaValue=area?.value||'';
-  const vals=[...new Set(DATA.filter(e=>!areaValue||e.region===areaValue).map(e=>e.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  const canton=window.WGH_CANTON_BY_REGION?.[areaValue];
+  const localities=canton?(window.WGH_LOCALITIES_BY_CANTON?.[canton.code]||[]):[];
   place.innerHTML='<option value="">Alle Orte</option>';
+  if(localities.length){
+    localities.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).forEach(l=>{const o=document.createElement('option');o.value=`locality:${l.id}`;o.textContent=`${l.name} · ${l.postalCodes.join(', ')}`;place.appendChild(o)});
+    if([...place.options].some(o=>o.value===current))place.value=current;
+    return;
+  }
+  const vals=[...new Set(DATA.filter(e=>!areaValue||e.region===areaValue).map(e=>e.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
   vals.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;place.appendChild(o)});
   if(vals.includes(current))place.value=current;
 }
@@ -83,7 +90,11 @@ function currentFilteredEvents(){
     if(favoritesOnly&&!favSet.has(eventId(e)))return false;
     if(activeCategory!=='Alle'&&!cats.includes(activeCategory))return false;
     if(areaValue&&e.region!==areaValue)return false;
-    if(placeValue&&e.city!==placeValue)return false;
+    if(placeValue){
+      if(placeValue.startsWith('locality:')){if(window.WGH_EVENT_LOCALITY?.(e)?.id!==placeValue.slice(9))return false}
+      else if(placeValue.startsWith('municipality:')){if(window.WGH_EVENT_MUNICIPALITY?.(e)?.id!==placeValue.slice(13))return false}
+      else if(e.city!==placeValue)return false;
+    }
     if(!matchesSearch(e,term))return false;
     if(activePeriod==='today'&&!isToday(e))return false;
     if(activePeriod==='weekend'&&!overlaps(e,weekend[0],weekend[1]))return false;
@@ -99,9 +110,13 @@ function currentFilteredEvents(){
 function render(){
   if(!grid)return;
   resetEmptyCopy();syncSpecialUI();syncActiveControls();
-  const arr=currentFilteredEvents(),areaValue=area?.value||'';
+  const arr=currentFilteredEvents(),areaValue=area?.value||'',placeValue=place?.value||'';
   grid.innerHTML=arr.map(card).join('');
-  if(empty){empty.style.display=arr.length?'none':'block';if(favoritesOnly&&!arr.length){const h=empty.querySelector('h3'),p=empty.querySelector('p');if(h)h.textContent='Keine Favoriten gespeichert';if(p)p.textContent='Tippe bei einem Event auf 🤍, um ihn zu speichern.'}}
+  if(empty){
+    empty.style.display=arr.length?'none':'block';
+    if(favoritesOnly&&!arr.length){const h=empty.querySelector('h3'),p=empty.querySelector('p');if(h)h.textContent='Keine Favoriten gespeichert';if(p)p.textContent='Tippe bei einem Event auf 🤍, um ihn zu speichern.'}
+    else if(placeValue&&!arr.length){const municipality=placeValue.startsWith('municipality:')?window.WGH_MUNICIPALITY_BY_ID?.[placeValue.slice(13)]:null,locality=placeValue.startsWith('locality:')?window.WGH_LOCALITY_BY_ID?.[placeValue.slice(9)]:null,h=empty.querySelector('h3'),p=empty.querySelector('p');if(h)h.textContent='Momentan keine bestätigten Events';if(p)p.textContent=(locality||municipality)?`${(locality||municipality).name} ist vollständig erfasst. Sobald ein geprüfter Event vorliegt, erscheint er hier.`:'Für diesen Ort wurde momentan kein bestätigter Event gefunden.'}
+  }
   setText('visibleCount',arr.length);
   if(result){
     if(favoritesOnly)result.textContent=`${arr.length} Favorit${arr.length===1?'':'en'}`;

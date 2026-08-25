@@ -16,3 +16,9 @@ window.WGH_locationFor=function(city){
   const found=Object.keys(window.WGH_LOCATIONS).find(k=>c.toLowerCase().includes(k.toLowerCase())||k.toLowerCase().includes(c.toLowerCase()));
   return found?window.WGH_LOCATIONS[found]:null;
 };
+for(const municipality of window.WGH_MUNICIPALITIES||[]){
+  if(!window.WGH_LOCATIONS[municipality.name]&&Number.isFinite(municipality.lat)&&Number.isFinite(municipality.lon))window.WGH_LOCATIONS[municipality.name]=[municipality.lat,municipality.lon];
+}
+for(const locality of window.WGH_LOCALITIES||[]){
+  if(!window.WGH_LOCATIONS[locality.name]&&Number.isFinite(locality.lat)&&Number.isFinite(locality.lon))window.WGH_LOCATIONS[locality.name]=[locality.lat,locality.lon];
+}
