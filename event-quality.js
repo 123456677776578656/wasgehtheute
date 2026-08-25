@@ -2,7 +2,8 @@
 const health=window.WGH_EVENT_HEALTH||{events:{},duplicates:[]};
 const rows=Array.isArray(window.EVENTS)?window.EVENTS:[];
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const id=e=>norm(`${e.title}-${e.city}-${e.start}`);
+const legacyId=e=>norm(`${e.title}-${e.city}-${e.start}`);
+const id=e=>norm(`${e.title}-${e.city}-${e.start}${e.locality_id?`-${e.time||''}`:''}`);
 const score=e=>[
   e.verified?5:0,e.source?3:0,e.ticket?2:0,e.image?2:0,e.venue?1:0,e.price?1:0,e.desc?Math.min(2,String(e.desc).length/120):0
 ].reduce((a,b)=>a+b,0);
@@ -14,7 +15,7 @@ for(const e of rows){
 }
 const clean=[...seen.values()];
 for(const e of clean){
-  const h=health.events?.[id(e)];
+  const h=health.events?.[id(e)]||health.events?.[legacyId(e)];
   if(!h)continue;
   e.health_checked_at=h.checked_at||health.checked_at||'';
   if(h.possible_cancelled){e.quality_status='cancelled-warning';e.quality_note=h.reason||'Mögliche Absage erkannt – Quelle prüfen.'}

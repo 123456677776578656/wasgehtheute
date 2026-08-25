@@ -8,6 +8,8 @@ const byId=Object.fromEntries(localities.map(x=>[x.id,x]));
 const byCanton=Object.fromEntries([...new Set(localities.map(x=>x.canton))].map(code=>[code,localities.filter(x=>x.canton===code)]));
 const byMunicipality={};for(const locality of localities){for(const id of locality.municipalityIds||[locality.municipalityId]){(byMunicipality[id]||(byMunicipality[id]=[])).push(locality)}}
 const byKey=new Map(localities.map(x=>[x.canton+'|'+norm(x.name),x]));
-function eventLocality(event){const canton=(window.WGH_CANTON_BY_REGION||{})[event?.region];if(!canton)return null;let key=norm(event?.city);key=aliases[canton.code]?.[key]||key;return byKey.get(canton.code+'|'+key)||null}
-window.WGH_LOCALITIES=localities;window.WGH_LOCALITY_BY_ID=byId;window.WGH_LOCALITIES_BY_CANTON=byCanton;window.WGH_LOCALITIES_BY_MUNICIPALITY=byMunicipality;window.WGH_EVENT_LOCALITY=eventLocality;
+function eventLocality(event){if(event?.locality_id&&byId[event.locality_id])return byId[event.locality_id];const canton=(window.WGH_CANTON_BY_REGION||{})[event?.region];if(!canton)return null;let key=norm(event?.city);key=aliases[canton.code]?.[key]||key;return byKey.get(canton.code+'|'+key)||null}
+const directEventMunicipality=window.WGH_EVENT_MUNICIPALITY;
+function eventMunicipality(event){return directEventMunicipality?.(event)||window.WGH_MUNICIPALITY_BY_ID?.[eventLocality(event)?.municipalityId]||null}
+window.WGH_LOCALITIES=localities;window.WGH_LOCALITY_BY_ID=byId;window.WGH_LOCALITIES_BY_CANTON=byCanton;window.WGH_LOCALITIES_BY_MUNICIPALITY=byMunicipality;window.WGH_EVENT_LOCALITY=eventLocality;window.WGH_EVENT_MUNICIPALITY=eventMunicipality;
 })();

@@ -1,7 +1,7 @@
 const DATA=window.EVENTS||[];
 const CFG=window.WGH_CONFIG||{},NS=CFG.analyticsNamespace||'wasgehtheute.ch',favKey='wgh_favorites_v1';
 function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-function eid(e){return slugify(e.title+'-'+e.city+'-'+e.start)}
+function eid(e){return slugify(`${e.title}-${e.city}-${e.start}${e.locality_id?`-${e.time||''}`:''}`)}
 function venue(e){return e.venue||e.location||e.city}
 function price(e){if(e.price)return e.price;if((e.cats||[]).includes('Gratis'))return 'Gratis';return ''}
 async function counter(name,up=false){try{const suffix=up?'':'?readOnly=true';const r=await fetch(`https://counterapi.com/api/${encodeURIComponent(NS)}/metric/${encodeURIComponent(name)}${suffix}`,{cache:'no-store'});if(!r.ok)throw new Error('counter');const d=await r.json();return Number(d.value??0)||0}catch{return 0}}

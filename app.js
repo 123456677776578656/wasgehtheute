@@ -24,7 +24,7 @@ function isToday(e){return e.start<=TODAY&&e.end>=TODAY}
 function tomorrow(){const d=new Date(TODAY+'T12:00:00');d.setDate(d.getDate()+1);return ymd(d)}
 function dateLabel(e){if(isToday(e))return '🔥 Heute';if(e.start===tomorrow())return '🌤️ Morgen';const [fri,sun]=thisWeekend();if(overlaps(e,fri,sun))return '🗓️ Dieses Wochenende';return e.date||e.start||''}
 function slugify(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
-function eventId(e){return slugify(`${e.title}-${e.city}-${e.start}`)}
+function eventId(e){return slugify(`${e.title}-${e.city}-${e.start}${e.locality_id?`-${e.time||''}`:''}`)}
 function eventUrl(e){return `event.html?id=${encodeURIComponent(eventId(e))}`}
 function esc(s){return String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch]))}
 function normalizeText(s){return String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim()}
@@ -43,7 +43,8 @@ function refreshPlaces(){
   if(!place)return;
   const current=place.value,areaValue=area?.value||'';
   const canton=window.WGH_CANTON_BY_REGION?.[areaValue];
-  const localities=canton?(window.WGH_LOCALITIES_BY_CANTON?.[canton.code]||[]):[];
+  const activeLocalityIds=new Set(DATA.filter(e=>e.end>=TODAY&&e.source).map(e=>window.WGH_EVENT_LOCALITY?.(e)?.id).filter(Boolean));
+  const localities=canton?(window.WGH_LOCALITIES_BY_CANTON?.[canton.code]||[]).filter(l=>activeLocalityIds.has(l.id)):[];
   place.innerHTML='<option value="">Alle Orte</option>';
   if(localities.length){
     localities.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).forEach(l=>{const o=document.createElement('option');o.value=`locality:${l.id}`;o.textContent=`${l.name} · ${l.postalCodes.join(', ')}`;place.appendChild(o)});
@@ -110,8 +111,8 @@ function currentFilteredEvents(){
 function render(){
   if(!grid)return;
   resetEmptyCopy();syncSpecialUI();syncActiveControls();
-  const arr=currentFilteredEvents(),areaValue=area?.value||'',placeValue=place?.value||'';
-  grid.innerHTML=arr.map(card).join('');
+  const arr=currentFilteredEvents(),shown=arr.slice(0,200),areaValue=area?.value||'',placeValue=place?.value||'';
+  grid.innerHTML=shown.map(card).join('');
   if(empty){
     empty.style.display=arr.length?'none':'block';
     if(favoritesOnly&&!arr.length){const h=empty.querySelector('h3'),p=empty.querySelector('p');if(h)h.textContent='Keine Favoriten gespeichert';if(p)p.textContent='Tippe bei einem Event auf 🤍, um ihn zu speichern.'}
@@ -121,7 +122,7 @@ function render(){
   if(result){
     if(favoritesOnly)result.textContent=`${arr.length} Favorit${arr.length===1?'':'en'}`;
     else if(distanceMode)result.textContent=`${arr.length} nach Entfernung sortiert`;
-    else result.textContent=`${arr.length} gefunden${areaValue?' · '+areaValue:''}`;
+    else result.textContent=`${arr.length} gefunden${arr.length>shown.length?` · erste ${shown.length} angezeigt`:''}${areaValue?' · '+areaValue:''}`;
   }
   window.dispatchEvent(new CustomEvent('wgh:render',{detail:{count:arr.length,favoritesOnly,distanceMode}}));
 }

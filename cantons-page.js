@@ -25,8 +25,8 @@ function renderSearch(){
   const term=window.WGH_NORMALIZE_PLACE?.(input?.value)||'';
   if(!term){results.innerHTML='<p class="municipality-search-hint">Tippe einen Gemeindenamen ein oder öffne oben einen Kanton.</p>';return}
   const matches=[
-    ...municipalities.filter(m=>{const canton=window.WGH_CANTON_BY_CODE[m.canton];return window.WGH_NORMALIZE_PLACE(`${m.name} ${canton?.name||''}`).includes(term)}).map(m=>({kind:'Gemeinde',row:m,count:eventPlaces.get(m.id)||0})),
-    ...localities.filter(l=>{const canton=window.WGH_CANTON_BY_CODE[l.canton];return window.WGH_NORMALIZE_PLACE(`${l.name} ${l.postalCodes.join(' ')} ${canton?.name||''}`).includes(term)}).map(l=>({kind:'Dorf/Ortschaft',row:l,count:eventLocalities.get(l.id)||0}))
+    ...municipalities.filter(m=>eventPlaces.has(m.id)).filter(m=>{const canton=window.WGH_CANTON_BY_CODE[m.canton];return window.WGH_NORMALIZE_PLACE(`${m.name} ${canton?.name||''}`).includes(term)}).map(m=>({kind:'Gemeinde',row:m,count:eventPlaces.get(m.id)})),
+    ...localities.filter(l=>eventLocalities.has(l.id)).filter(l=>{const canton=window.WGH_CANTON_BY_CODE[l.canton];return window.WGH_NORMALIZE_PLACE(`${l.name} ${l.postalCodes.join(' ')} ${canton?.name||''}`).includes(term)}).map(l=>({kind:'Dorf/Ortschaft',row:l,count:eventLocalities.get(l.id)}))
   ].sort((a,b)=>a.row.name.localeCompare(b.row.name,'de')||a.kind.localeCompare(b.kind,'de')).slice(0,100);
   results.innerHTML=matches.length?`<div class="municipality-grid">${matches.map(item=>{const m=item.row,canton=window.WGH_CANTON_BY_CODE[m.canton],plz=m.postalCodes?.join(', ');return `<a class="municipality-card ${item.kind==='Dorf/Ortschaft'?'is-locality':''}" href="ort.html?id=${encodeURIComponent(m.id)}"><span>${esc(m.name)}</span><small>${esc(item.kind)} · ${esc(canton?.name||m.canton.toUpperCase())}${plz?` · PLZ ${esc(plz)}`:''}</small><b>${item.count} Events →</b></a>`}).join('')}</div>`:'<div class="canton-empty"><strong>Keine Gemeinde oder Ortschaft gefunden.</strong><p>Prüfe die Schreibweise.</p></div>';
 }
