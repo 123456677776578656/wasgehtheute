@@ -16,7 +16,7 @@ const fresh=[
 {"title":"Spielzeug-, Auto- und Modelleisenbahnbörse Buchs","city":"Buchs SG","region":"Rheintal / Werdenberg / Sargans / Wildhaus","start":"2026-11-29","end":"2026-11-29","date":"29.11.2026","time":"10:00–15:00","cats":["Markt","Familie"],"emoji":"🚂","desc":"Börse für Spielzeug, Modellautos und Modelleisenbahnen im Berufsbildungszentrum Buchs mit Neu- und Gebrauchtwaren für Sammler und Familien.","source":"https://www.weak.ch/index.php","verified":true,"verified_at":"24.08.2026","source_type":"Vereinskalender","venue":"Berufsbildungszentrum Buchs, Hanflandstrasse 17"},
 {"title":"Buchser Chlausmarkt 2026 – Weihnachtsmarkt am Werdenbergersee","city":"Buchs SG","region":"Rheintal / Werdenberg / Sargans / Wildhaus","start":"2026-12-04","end":"2026-12-06","date":"04.–06.12.2026","time":"Fr ab 16:00 · bis So 18:00 · genaue Marktzeiten noch in Planung","cats":["Markt","Familie","Food","Kultur"],"emoji":"🎄","desc":"Weihnachtliches Marktdörfli mit handgefertigten Produkten, kulinarischen Angeboten, Samichlaus und Schmutzli, Kinder-Zügli, Tiergehege und weiteren Attraktionen.","source":"https://www.verkehrsverein-buchs.ch/event-details/buchser-chlausmarkt-2026-weihnachtsmarkt-am-werdenbergersee","verified":true,"verified_at":"24.08.2026","source_type":"Offizieller Veranstalter","venue":"Marktplatz beim Werdenbergersee, Buchs SG"}
 ];
-window.EVENTS=window.EVENTS||[];
+window.EVENTS=(window.EVENTS||[]).filter(event=>event.title!=="Floh- und Antiquitätenmarkt Buchs-Werdenberg");
 const key=e=>`${String(e.title||'').trim().toLowerCase()}|${e.start||''}|${String(e.city||'').trim().toLowerCase()}`;
 const existing=new Map(window.EVENTS.map((event,index)=>[key(event),index]));
 fresh.forEach(event=>{
