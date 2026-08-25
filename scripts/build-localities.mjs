@@ -25,8 +25,8 @@ const groups=new Map();
 for(const row of records){
   const name=row[ix.Ortschaftsname]?.trim(),canton=cantonCode(row[ix.Kantonskürzel]?.trim());
   if(!name||!canton)continue;
-  const key=`${canton}|${name}`,bfs=Number(row[ix['BFS-Nr']]),share=Number(String(row[ix.Adressenanteil]||'0').replace('%','').trim())||0;
-  const entry={name,canton,bfs,municipalityId:canton==='fl'?liMunicipalities[bfs]:`ch-${bfs}`,municipalityName:row[ix.Gemeindename]?.trim(),postalCode:row[ix.PLZ4]?.trim(),zipId:Number(row[ix.ZIP_ID]),lon:Number(row[ix.E]),lat:Number(row[ix.N]),share};
+  const zipId=Number(row[ix.ZIP_ID]),key=String(zipId),bfs=Number(row[ix['BFS-Nr']]),share=Number(String(row[ix.Adressenanteil]||'0').replace('%','').trim())||0;
+  const entry={name,canton,bfs,municipalityId:canton==='fl'?liMunicipalities[bfs]:`ch-${bfs}`,municipalityName:row[ix.Gemeindename]?.trim(),postalCode:row[ix.PLZ4]?.trim(),zipId,lon:Number(row[ix.E]),lat:Number(row[ix.N]),share};
   if(!groups.has(key))groups.set(key,[]);groups.get(key).push(entry);
 }
 const localities=[];
@@ -36,7 +36,7 @@ for(const entries of groups.values()){
   localities.push({id:`loc-${primary.canton}-${Math.min(...entries.map(x=>x.zipId))}`,name:primary.name,canton:primary.canton,municipalityId:primary.municipalityId,municipalityIds,postalCodes,lat:Number(primary.lat.toFixed(5)),lon:Number(primary.lon.toFixed(5))});
 }
 localities.sort((a,b)=>a.canton.localeCompare(b.canton)||a.name.localeCompare(b.name,'de'));
-if(localities.length!==4145)throw new Error(`Expected 4145 locality/canton combinations, got ${localities.length}`);
+if(localities.length!==4073)throw new Error(`Expected 4073 official locality IDs, got ${localities.length}`);
 
 const payload=`/* Generated from the official swisstopo directory of localities, release 01.08.2026.\n+   Source: https://www.swisstopo.admin.ch/de/amtliches-ortschaftenverzeichnis */\n+(()=>{\n+const localities=${JSON.stringify(localities)};\n+const norm=window.WGH_NORMALIZE_PLACE||((s)=>String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/ß/g,'ss').replace(/[()]/g,' ').replace(/[^a-z0-9]+/g,' ').trim());\n+const aliases={sg:{'buchs sg':'buchs sg','werdenberg buchs':'buchs sg','unterwasser wildhaus':'unterwasser'},zh:{'aathal seegraben':'aathal seegraben'},ge:{'genf':'geneve'}};\n+const byId=Object.fromEntries(localities.map(x=>[x.id,x]));\n+const byCanton=Object.fromEntries([...new Set(localities.map(x=>x.canton))].map(code=>[code,localities.filter(x=>x.canton===code)]));\n+const byMunicipality={};for(const locality of localities){for(const id of locality.municipalityIds||[locality.municipalityId]){(byMunicipality[id]||(byMunicipality[id]=[])).push(locality)}}\n+const byKey=new Map(localities.map(x=>[x.canton+'|'+norm(x.name),x]));\n+function eventLocality(event){const canton=(window.WGH_CANTON_BY_REGION||{})[event?.region];if(!canton)return null;let key=norm(event?.city);key=aliases[canton.code]?.[key]||key;return byKey.get(canton.code+'|'+key)||null}\n+window.WGH_LOCALITIES=localities;window.WGH_LOCALITY_BY_ID=byId;window.WGH_LOCALITIES_BY_CANTON=byCanton;window.WGH_LOCALITIES_BY_MUNICIPALITY=byMunicipality;window.WGH_EVENT_LOCALITY=eventLocality;\n+})();\n`;
 const correctedPayload=payload
