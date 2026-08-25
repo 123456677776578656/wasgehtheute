@@ -53,7 +53,29 @@ body.mockup-ui:before{display:none!important}
 
 /* CENTER APP */
 .content-column{min-width:0;align-self:start}
-.content-column .topbar{display:none}
+.content-column .topbar{
+  position:sticky;
+  top:28px;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:62px;
+  height:62px;
+  margin:0 0 12px;
+  padding:0 14px;
+  border:1px solid var(--app-line);
+  border-radius:14px;
+  background:rgba(8,14,24,.97);
+  box-shadow:0 16px 42px rgba(0,0,0,.22);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.content-column .topbar .brand{flex:0 0 auto;font-size:17px}
+.content-column .topbar .logo{width:34px;height:34px;border-radius:10px;font-size:12px}
+.content-column .topbar .topnav{display:flex;align-items:center;gap:2px;margin-left:auto}
+.content-column .topbar .topnav a{padding:9px 8px;font-size:10px;white-space:nowrap}
+.content-column .topbar .region-pill{flex:0 0 auto;padding:8px 10px;font-size:9px}
 .feed-shell{min-width:0}
 .sticky-quicknav{
   display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;
