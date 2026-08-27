@@ -5,7 +5,8 @@ const files=[
  'events-catalog.js?v=1',
  'event-health.js?v=5',
  'event-quality.js?v=4',
- 'pro-event-experience.js?v=1'
+ 'pro-event-experience.js?v=1',
+ 'stats-reliability.js?v=1'
 ];
 function tag(src){return `<script src="${src}"><\/script>`}
 if(document.readyState==='loading'){
