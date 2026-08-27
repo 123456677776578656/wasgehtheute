@@ -1,15 +1,23 @@
 {
-  "name":"WasGehtHeute.ch",
+  "id":"./",
+  "name":"WasGehtHeute.ch – Events entdecken",
   "short_name":"WasGehtHeute",
-  "description":"Geprüfte Events in Buchs, Rheintal, Zürich, Chur/Graubünden und Thurgau.",
+  "description":"Geprüfte Events, Märkte, Konzerte, Feste und Nightlife in der Schweiz.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
-  "background_color":"#0b0d12",
-  "theme_color":"#0b0d12",
+  "display_override":["window-controls-overlay","standalone","minimal-ui"],
+  "background_color":"#050810",
+  "theme_color":"#050810",
   "lang":"de-CH",
+  "orientation":"any",
   "categories":["entertainment","events","lifestyle"],
   "icons":[
     {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ],
+  "shortcuts":[
+    {"name":"Events heute","short_name":"Heute","url":"./#events","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]},
+    {"name":"Nightlife","short_name":"Nightlife","url":"./nightlife.html","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]},
+    {"name":"Dieses Wochenende","short_name":"Wochenende","url":"./weekend.html","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]}
   ]
 }
