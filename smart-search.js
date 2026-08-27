@@ -1,54 +1,22 @@
 (()=>{
-const input=document.getElementById('q');
-const area=document.getElementById('area');
-const place=document.getElementById('place');
+const input=document.getElementById('q'),area=document.getElementById('area'),place=document.getElementById('place');
 if(!input)return;
-const places=['Buchs','Sargans','Mels','Haag','Grabs','Altstätten','Altstaetten','Wildhaus','St. Gallen','St Gallen','Chur','Zürich','Zurich','Winterthur','Uster','Arbon','Frauenfeld','Kreuzlingen','Wil','Rapperswil','Vaduz'];
-const cats=[
-  ['party','Party'],['partys','Party'],['nachtleben','Party'],['nightlife','Party'],['club','Club'],['clubs','Club'],['diskothek','Club'],['disco','Club'],['bar','Bar'],['bars','Bar'],['musik','Musik'],['konzert','Musik'],['konzerte','Musik'],['festival','Festival'],['festivals','Festival'],['markt','Markt'],['märkte','Markt'],['maerkte','Markt'],['dorffest','Dorffest'],['fest','Dorffest'],['sport','Sport'],['fussball','Sport'],['fußball','Sport'],['familie','Familie'],['kinder','Familie'],['food','Food'],['essen','Food'],['kultur','Kultur'],['theater','Kultur'],['gratis','Gratis'],['kostenlos','Gratis'],['outdoor','Outdoor'],['wandern','Outdoor']
-];
-const norm=s=>String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim();
+const DATA=Array.isArray(window.EVENTS)?window.EVENTS:[],U=window.WGH_EVENT_UTILS||{};
+const norm=U.normText||((s)=>String(s||'').toLocaleLowerCase('de').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim());
+const cats=[['party','Party'],['partys','Party'],['nachtleben','Party'],['nightlife','Party'],['club','Club'],['clubs','Club'],['diskothek','Club'],['disco','Club'],['bar','Bar'],['bars','Bar'],['musik','Musik'],['konzert','Musik'],['konzerte','Musik'],['festival','Festival'],['markt','Markt'],['maerkte','Markt'],['jahrmarkt','Markt'],['dorffest','Dorffest'],['fest','Dorffest'],['sport','Sport'],['fussball','Sport'],['familie','Familie'],['kinder','Familie'],['food','Food'],['essen','Food'],['kultur','Kultur'],['theater','Kultur'],['gratis','Gratis'],['kostenlos','Gratis'],['outdoor','Outdoor'],['wandern','Outdoor']];
+const aliases=new Map([['buchs','Buchs SG'],['buchs sg','Buchs SG'],['st gallen','St. Gallen'],['stgallen','St. Gallen'],['zurich','Zürich'],['zuerich','Zürich'],['altstaetten','Altstätten']]);
+const places=[...new Set(DATA.map(e=>e.city).filter(Boolean))];
+function edit(a,b){a=norm(a);b=norm(b);if(a===b)return 0;const p=Array.from({length:b.length+1},(_,i)=>i),c=new Array(b.length+1);for(let i=1;i<=a.length;i++){c[0]=i;for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));for(let j=0;j<=b.length;j++)p[j]=c[j]}return p[b.length]}
+function near(a,b){const na=norm(a),nb=norm(b),d=edit(na,nb),limit=Math.max(1,Math.floor(Math.max(na.length,nb.length)/5));return d<=limit}
+function areaFor(city){const c=norm(city);if(['buchs sg','sargans','mels','haag','grabs','altstatten','wildhaus','st gallen','werdenberg'].some(x=>c.includes(x)))return'Rheintal / Werdenberg / Sargans / Wildhaus';if(['zurich','winterthur','uster','rapperswil'].some(x=>c.includes(x)))return'Kanton Zürich';if(c.includes('chur'))return'Chur / Graubünden';if(['arbon','frauenfeld','kreuzlingen'].some(x=>c.includes(x)))return'Kanton Thurgau';return''}
+function findPlace(raw){const n=norm(raw);if(aliases.has(n))return aliases.get(n);const exact=places.find(p=>norm(p)===n);if(exact)return exact;const contained=places.filter(p=>n.includes(norm(p))).sort((a,b)=>b.length-a.length)[0];if(contained)return contained;return places.map(p=>({p,d:edit(n,norm(p))})).filter(x=>x.d<=Math.max(1,Math.floor(norm(x.p).length/5))).sort((a,b)=>a.d-b.d)[0]?.p||null}
+function findCat(tokens){for(const token of tokens){const row=cats.find(([term])=>norm(term)===token||near(term,token));if(row)return{term:token,cat:row[1]}}return null}
+let box=input.closest('.control')?.querySelector('.search-suggestions');
+if(!box&&input.closest('.control')){box=document.createElement('div');box.className='search-suggestions';input.closest('.control').appendChild(box)}
+function suggestions(raw){if(!box)return;const n=norm(raw);if(n.length<2){box.classList.remove('open');box.innerHTML='';return}const rows=[];places.forEach(p=>{const np=norm(p),d=edit(n,np);if(np.includes(n)||n.includes(np)||d<=2)rows.push({kind:'Ort',label:p,value:p,score:np.includes(n)?0:d+2})});const eventRows=DATA.filter(e=>e.end>=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date())).map(e=>{const nt=norm(e.title),d=edit(n,nt);const fuzzy=U.fuzzyMatch?.(e,raw);return fuzzy||nt.includes(n)||d<=Math.max(2,Math.floor(nt.length/7))?{kind:'Event',label:e.title,value:e.title,score:fuzzy?1:d+4}:null}).filter(Boolean);rows.push(...eventRows);const uniq=[];const seen=new Set();rows.sort((a,b)=>a.score-b.score||a.label.localeCompare(b.label,'de')).forEach(x=>{const k=x.kind+'|'+x.label;if(!seen.has(k)&&uniq.length<5){seen.add(k);uniq.push(x)}});box.innerHTML=uniq.map((x,i)=>`<button type="button" class="search-suggestion" data-suggestion="${i}"><span>${x.kind==='Ort'?'📍':'🎫'} ${x.label}</span><small>${x.kind}</small></button>`).join('');box.classList.toggle('open',uniq.length>0);box._items=uniq}
+box?.addEventListener('click',e=>{const b=e.target.closest('[data-suggestion]');if(!b)return;const item=box._items?.[Number(b.dataset.suggestion)];if(!item)return;if(item.kind==='Ort'){applyPlace(item.value);input.value=''}else{input.value=item.value;input.dispatchEvent(new Event('input',{bubbles:true}))}box.classList.remove('open')});
+function applyPlace(city){const av=areaFor(city);if(area&&av&&area.value!==av){area.value=av;area.dispatchEvent(new Event('change',{bubbles:true}))}requestAnimationFrame(()=>{if(!place)return;let option=[...place.options].find(o=>norm(o.value||o.textContent)===norm(city));if(!option&&city==='Buchs SG')option=[...place.options].find(o=>norm(o.value||o.textContent).includes('buchs'));if(option){place.value=option.value;place.dispatchEvent(new Event('change',{bubbles:true}))}})}
 let working=false;
-function findPlace(tokens){
-  const n=tokens.join(' ');
-  return places.find(p=>{
-    const np=norm(p);return np.includes(' ')?n.includes(np):tokens.includes(np);
-  })||null;
-}
-function findCategory(tokens){
-  for(const [term,cat] of cats){if(tokens.includes(norm(term)))return {term,cat}}
-  return null;
-}
-function applySmartSearch(){
-  if(working)return;working=true;
-  try{
-    const raw=input.value.trim(),tokens=norm(raw).split(/\s+/).filter(Boolean);
-    if(!tokens.length){working=false;return}
-    const foundPlace=findPlace(tokens),foundCat=findCategory(tokens);
-    let leftovers=[...tokens];
-    if(foundPlace){
-      const np=norm(foundPlace).split(/\s+/);np.forEach(t=>{const i=leftovers.indexOf(t);if(i>=0)leftovers.splice(i,1)});
-      if(place){const option=[...place.options].find(o=>norm(o.value||o.textContent)===norm(foundPlace));if(option){place.value=option.value;place.dispatchEvent(new Event('change',{bubbles:true}))}}
-    }
-    if(foundCat){const btn=document.querySelector(`[data-cat="${CSS.escape(foundCat.cat)}"]`);if(btn){btn.click()}leftovers=leftovers.filter(t=>t!==norm(foundCat.term))}
-    const cleaned=leftovers.join(' ').trim();
-    if(foundPlace||foundCat){
-      if(input.value!==cleaned)input.value=cleaned;
-    }
-    let areaName='';
-    if(foundPlace){
-      const city=norm(foundPlace);
-      if(['buchs','sargans','mels','haag','grabs','altstatten','wildhaus','st gallen','st gallen'].includes(city))areaName='Rheintal / Werdenberg / Sargans / Wildhaus';
-      else if(['zuerich','winterthur','uster','rapperswil'].includes(city))areaName='Kanton Zürich';
-      else if(city==='chur')areaName='Chur / Graubünden';
-      else if(['arbon','frauenfeld','kreuzlingen'].includes(city))areaName='Kanton Thurgau';
-      if(area&&areaName&&area.value!==areaName){area.value=areaName;area.dispatchEvent(new Event('change',{bubbles:true}))}
-    }
-  }finally{setTimeout(()=>{working=false},0)}
-}
-input.addEventListener('change',applySmartSearch);
-input.addEventListener('keydown',e=>{if(e.key==='Enter')applySmartSearch()});
-const examples=['Buchs Party','Sargans Musik','Mels Sport','Zürich Festival'];
-input.addEventListener('focus',()=>{if(!input.value)input.placeholder='z. B. „Buchs Party“ oder „Mels Sport“'});
-input.addEventListener('blur',()=>{if(!input.value)input.placeholder='Suche nach Events, Orten, Kategorien...'});
+function applySmartSearch(){if(working)return;working=true;try{const raw=input.value.trim(),tokens=norm(raw).split(/\s+/).filter(Boolean);if(!tokens.length)return;let foundPlace=findPlace(raw),placeTokens=[];if(!foundPlace){for(let len=Math.min(3,tokens.length);len>=1&&!foundPlace;len--){for(let i=0;i<=tokens.length-len;i++){const part=tokens.slice(i,i+len).join(' '),p=findPlace(part);if(p){foundPlace=p;placeTokens=tokens.slice(i,i+len);break}}}}else placeTokens=norm(foundPlace).split(' ');const foundCat=findCat(tokens);let leftovers=[...tokens];if(foundPlace){applyPlace(foundPlace);const pt=placeTokens.length?placeTokens:norm(foundPlace).split(' ');pt.forEach(t=>{const i=leftovers.findIndex(x=>x===t||near(x,t));if(i>=0)leftovers.splice(i,1)})}if(foundCat){document.querySelector(`[data-cat="${CSS.escape(foundCat.cat)}"]`)?.click();const i=leftovers.indexOf(foundCat.term);if(i>=0)leftovers.splice(i,1)}if(foundPlace||foundCat){input.value=leftovers.join(' ');input.dispatchEvent(new Event('input',{bubbles:true}))}}finally{setTimeout(()=>{working=false},0)}}
+let timer;input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>suggestions(input.value),120)});input.addEventListener('change',applySmartSearch);input.addEventListener('keydown',e=>{if(e.key==='Enter'){box?.classList.remove('open');applySmartSearch()}if(e.key==='Escape')box?.classList.remove('open')});input.addEventListener('focus',()=>{if(!input.value)input.placeholder='z. B. „Techno Zürich“, „Buchs Markt“ oder Eventname'});input.addEventListener('blur',()=>{setTimeout(()=>box?.classList.remove('open'),150);if(!input.value)input.placeholder='Suche nach Events, Orten, Kategorien...'});
 })();
