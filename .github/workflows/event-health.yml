@@ -5,6 +5,12 @@ on:
   push:
     paths:
       - 'events-*.js'
+      - 'event-sources.js'
+      - 'event-quality.js'
+      - 'pro-event-experience.js'
+      - 'stats-reliability.js'
+      - 'sw.js'
+      - 'scripts/build_events_catalog.py'
       - 'scripts/check_events.py'
       - '.github/workflows/event-health.yml'
   schedule:
@@ -21,16 +27,35 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build central public event catalog
+        run: python scripts/build_events_catalog.py
       - name: Check event sources
         run: python scripts/check_events.py
-      - name: Commit updated event health
+      - name: Check JavaScript syntax
         run: |
-          if git diff --quiet -- event-health.js; then
-            echo "No event-health changes"
+          node --check event-sources.js
+          node --check event-quality.js
+          node --check pro-event-experience.js
+          node --check stats-reliability.js
+          node --check app.js
+          node --check features.js
+          node --check nightlife.js
+          node --check event-detail.js
+          node --check landing.js
+          node --check admin.js
+          node --check sw.js
+          node --check events-catalog.js
+      - name: Commit updated catalog and event health
+        run: |
+          if git diff --quiet -- event-health.js events-catalog.js; then
+            echo "No event data changes"
             exit 0
           fi
           git config user.name "wasgehtheute-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add event-health.js
-          git commit -m "Event-Quellen automatisch prüfen"
+          git add event-health.js events-catalog.js
+          git commit -m "Eventkatalog und Quellenprüfung aktualisieren"
           git push

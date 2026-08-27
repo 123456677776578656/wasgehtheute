@@ -10,11 +10,13 @@ import unicodedata
 import urllib.error
 import urllib.request
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "event-health.js"
-TODAY = dt.datetime.now(dt.timezone.utc).date().isoformat()
-USER_AGENT = "Mozilla/5.0 (compatible; WasGehtHeute-EventCheck/2.0; +https://123456677776578656.github.io/wasgehtheute/)"
+TZ = ZoneInfo("Europe/Zurich")
+TODAY = dt.datetime.now(TZ).date().isoformat()
+USER_AGENT = "Mozilla/5.0 (compatible; WasGehtHeute-EventCheck/3.0; +https://wasgehtheute.ch/)"
 EVENT_FILES = (
     "events-1.js", "events-2.js", "events-3.js", "events-nightlife.js",
     "events-nightlife-extra.js", "events-update-2026-08-24.js",
@@ -128,6 +130,9 @@ def validate_event(event):
     source = event.get("source", "")
     if source and not str(source).startswith(("http://", "https://")):
         issues.append("Quellen-URL ungültig")
+    ticket = event.get("ticket", "")
+    if ticket and not str(ticket).startswith(("http://", "https://")):
+        issues.append("Ticket-URL ungültig")
     if not event.get("venue"):
         issues.append("Venue fehlt")
     if not event.get("time"):
@@ -213,7 +218,7 @@ def find_duplicates(events):
             seen[key] = event
     for i, event in enumerate(events):
         for other in events[i + 1:]:
-            if event.get("city") != other.get("city") or event.get("start") != other.get("start"):
+            if norm(event.get("city")) != norm(other.get("city")) or event.get("start") != other.get("start"):
                 continue
             if eid(event) == eid(other):
                 continue
@@ -244,17 +249,21 @@ def main():
         if not event_id:
             continue
         check = checks.get(event.get("source"), {})
-        cancelled, changed, sold_out = detect_flags(event, check.get("body", "")) if check.get("source_ok") else (False, False, False)
+        cancelled, changed, sold_out = detect_flags(event, check.get("body", "")) if check.get("source_ok") is True else (False, False, False)
         explicit = norm(event.get("status", ""))
         item = {
             "source_ok": check.get("source_ok"),
             "http_status": check.get("http_status"),
-            "checked_at": TODAY,
+            "attempted_at": TODAY,
             "source_rank": source_rank(event),
             "possible_cancelled": bool(cancelled or explicit in {"cancelled", "canceled", "abgesagt"}),
             "possible_changed": bool(changed or explicit in {"postponed", "verschoben", "verlegt", "changed"}),
             "possible_sold_out": bool(sold_out or explicit in {"ausverkauft", "sold out", "sold-out"}),
         }
+        # "checked_at" bedeutet bewusst: Die Originalquelle war bei diesem Lauf tatsächlich erreichbar.
+        # Ein Timeout, HTTP-Fehler oder Bot-Schutz darf das öffentliche Prüfdatum nicht künstlich erneuern.
+        if check.get("source_ok") is True:
+            item["checked_at"] = TODAY
         reason = check.get("reason", "")
         if item["possible_cancelled"]:
             reason = reason or "Auf der Originalquelle wurde ein möglicher Absage-Hinweis erkannt."
@@ -274,18 +283,21 @@ def main():
         "with_venue": sum(bool(e.get("venue")) for e in upcoming),
         "with_ticket": sum(bool(e.get("ticket")) for e in upcoming),
         "with_price": sum(bool(e.get("price")) or "Gratis" in (e.get("cats") or []) for e in upcoming),
+        "source_verified_now": sum(health.get(eid(e), {}).get("source_ok") is True for e in upcoming),
         "source_failures": sum(health.get(eid(e), {}).get("source_ok") is False for e in upcoming),
+        "source_inconclusive": sum(health.get(eid(e), {}).get("source_ok") is None for e in upcoming),
         "possible_cancelled": sum(health.get(eid(e), {}).get("possible_cancelled") is True for e in upcoming),
         "possible_changed": sum(health.get(eid(e), {}).get("possible_changed") is True for e in upcoming),
     }
     payload = {
-        "checked_at": TODAY,
+        "attempted_at": TODAY,
+        "checked_at": TODAY if metrics["source_verified_now"] else "",
         "events": health,
         "duplicates": exact_duplicates,
         "fuzzy_duplicates": fuzzy_duplicates,
         "issues": all_issues,
         "metrics": metrics,
-        "policy": "Health-Check markiert nur belegte Warnungen und überschreibt keine Eventdaten automatisch.",
+        "policy": "Health-Check markiert nur belegte Warnungen, setzt Prüfdatum nur bei erreichbarer Quelle und überschreibt Eventdaten niemals automatisch.",
     }
     OUT.write_text("window.WGH_EVENT_HEALTH=" + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")
     print(f"Geprüft: {total} kommende Events, {len(sources)} Quellen, {len(exact_duplicates)} exakte + {len(fuzzy_duplicates)} mögliche Dubletten, {len(all_issues)} Datenhinweise")
