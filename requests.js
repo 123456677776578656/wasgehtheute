@@ -56,6 +56,7 @@ async function submitOrganizerForm(form,type,msg){
 }
 
 async function submitQuickForm(form,msg){
+  if(val(form,'website_check'))return;
   const type=form.elements.request_type?.value==='Werbeanzeige anfragen'?'werbung':'event';
   const email=text(form.elements.email?.value),website=text(form.elements.website?.value);
   if(!validEmail(email)||!validUrl(website))return fail(msg,'Bitte prüfe E-Mail-Adresse und Info-Link.');
@@ -78,6 +79,6 @@ if(quick&&quickMsg&&!quick.dataset.wghBound){
   quick.dataset.wghBound='1';
   const map=[['formName','name'],['formEmail','email'],['requestType','request_type'],['formSubject','subject'],['formPlace','place'],['formDate','event_date'],['formLink','website'],['formMessage','message']];
   map.forEach(([id,name])=>{const el=document.getElementById(id);if(el&&!el.name)el.name=name});
-  quick.addEventListener('submit',e=>{e.preventDefault();e.stopImmediatePropagation();submitQuickForm(quick,quickMsg)},true);
+  quick.addEventListener('submit',e=>{e.preventDefault();submitQuickForm(quick,quickMsg)});
 }
 })();
