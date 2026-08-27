@@ -9,6 +9,13 @@ on:
       - 'event-quality.js'
       - 'pro-event-experience.js'
       - 'stats-reliability.js'
+      - 'requests.js'
+      - 'admin-requests.js'
+      - 'supabase-config.js'
+      - 'admin.html'
+      - 'veranstalter.html'
+      - 'datenschutz.html'
+      - 'site-config.js'
       - 'sw.js'
       - 'scripts/build_events_catalog.py'
       - 'scripts/check_events.py'
@@ -40,6 +47,10 @@ jobs:
           node --check event-quality.js
           node --check pro-event-experience.js
           node --check stats-reliability.js
+          node --check requests.js
+          node --check admin-requests.js
+          node --check supabase-config.js
+          node --check site-config.js
           node --check app.js
           node --check features.js
           node --check nightlife.js
