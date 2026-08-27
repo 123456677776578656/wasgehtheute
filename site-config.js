@@ -1,10 +1,11 @@
 window.WGH_CONFIG={
   contactEmail:"",
-  formEndpoint:"https://formspree.io/f/xkjwkyyz",
-  organizerEndpoint:"https://formspree.io/f/xkjwkyyz",
+  formEndpoint:"",
+  organizerEndpoint:"",
   pushSubscribeEndpoint:"",
-  authEndpoint:"",
+  authEndpoint:"supabase-auth",
   customDomain:"",
   analyticsNamespace:"wasgehtheute.ch",
-  adminMode:"static-preview"
+  adminMode:"supabase-auth",
+  supabaseRequests:true
 };
