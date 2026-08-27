@@ -1,8 +1,8 @@
-const CACHE='wasgehtheute-v45';
+const CACHE='wasgehtheute-v46';
 const CORE=[
  './','./index.html','./offline.html','./manifest.webmanifest','./icon.svg',
  './style.css','./professional.css','./enhancements.css','./mobile-fix.css','./accessibility.css','./app-shell.css','./mockup.css','./compact-feed.css','./quick-regions.css','./performance.css','./quality.css','./mobile-polish.css','./professional-upgrade.css','./nightlife.css',
- './site-config.js','./event-sources.js','./events-catalog.js','./event-quality.js','./event-health.js','./pro-event-experience.js','./locations.js','./app.js','./smart-search.js','./features.js','./event-images.js','./quality-ui.js','./app-shell.js','./mobile-feed.js','./event-map.js','./professional-upgrade.js','./mockup.js','./traffic.js',
+ './site-config.js','./event-sources.js','./events-catalog.js','./event-quality.js','./event-health.js','./pro-event-experience.js','./stats-reliability.js','./locations.js','./app.js','./smart-search.js','./features.js','./event-images.js','./quality-ui.js','./app-shell.js','./mobile-feed.js','./event-map.js','./professional-upgrade.js','./mockup.js','./traffic.js',
  './event.html','./event-detail.js','./nightlife.html','./nightlife.js','./buchs.html','./sargans.html','./mels.html','./zuerich.html','./chur.html','./thurgau.html','./weekend.html','./landing.js','./veranstalter.html','./organizer.js','./admin.html','./admin.js','./kantone.html','./kanton.html','./ort.html'
 ];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).catch(()=>{}));self.skipWaiting()});
