@@ -2,10 +2,11 @@
 <html lang="de-CH">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="Vollständiges Gemeindeverzeichnis und geprüfte kommende Veranstaltungen nach Kanton.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <title>Kanton und Gemeinden – WasGehtHeute.ch</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=8">
   <link rel="stylesheet" href="cantons.css?v=2">
 </head>
 <body>
@@ -13,20 +14,12 @@
 <main class="cantons-shell">
   <a class="event-back" href="kantone.html">← Alle Kantone</a>
   <section class="cantons-hero"><div class="canton-detail-head"><div><div class="eyebrow" id="cantonGroup">Kanton</div><h1 id="cantonTitle">Alle Gemeinden</h1><p id="cantonIntro">Vollständiges Gemeindeverzeichnis.</p></div><strong id="cantonCount">0 Gemeinden</strong></div></section>
-  <section class="municipality-directory" aria-labelledby="municipalityHeading">
-    <div class="municipality-section-head"><div><div class="eyebrow">Nur mit bestätigten Events</div><h2 id="municipalityHeading">Gemeinden mit Events</h2></div><span id="municipalityVisibleCount">0</span></div>
-    <label class="municipality-search"><span>🔎</span><input id="cantonMunicipalitySearch" type="search" placeholder="Gemeinde in diesem Kanton suchen" autocomplete="off"></label>
-    <div class="municipality-grid" id="municipalityGrid"></div>
-  </section>
-  <section class="municipality-directory" aria-labelledby="localityHeading">
-    <div class="municipality-section-head"><div><div class="eyebrow">Nur mit bestätigten Events</div><h2 id="localityHeading">Dörfer und Ortschaften mit Events</h2></div><span id="localityVisibleCount">0</span></div>
-    <label class="municipality-search"><span>🔎</span><input id="cantonLocalitySearch" type="search" placeholder="Dorf, Ortschaft oder Postleitzahl suchen" autocomplete="off"></label>
-    <div class="municipality-grid" id="localityGrid"></div>
-  </section>
-  <p class="canton-source-note">Alle amtlichen Orte bleiben im Datensatz erhalten. In dieser Übersicht erscheinen nur Orte mit mindestens einem zukünftigen Eintrag und öffentlicher Quelle – keine leeren Dorfkarten.</p>
+  <section class="municipality-directory" aria-labelledby="municipalityHeading"><div class="municipality-section-head"><div><div class="eyebrow">Nur mit bestätigten Events</div><h2 id="municipalityHeading">Gemeinden mit Events</h2></div><span id="municipalityVisibleCount">0</span></div><label class="municipality-search"><span>🔎</span><input id="cantonMunicipalitySearch" type="search" placeholder="Gemeinde in diesem Kanton suchen" autocomplete="off"></label><div class="municipality-grid" id="municipalityGrid"></div></section>
+  <section class="municipality-directory" aria-labelledby="localityHeading"><div class="municipality-section-head"><div><div class="eyebrow">Nur mit bestätigten Events</div><h2 id="localityHeading">Dörfer und Ortschaften mit Events</h2></div><span id="localityVisibleCount">0</span></div><label class="municipality-search"><span>🔎</span><input id="cantonLocalitySearch" type="search" placeholder="Dorf, Ortschaft oder Postleitzahl suchen" autocomplete="off"></label><div class="municipality-grid" id="localityGrid"></div></section>
+  <p class="canton-source-note">Alle amtlichen Orte bleiben im Ortsdatensatz erhalten. Events stammen aus demselben zentralen, geprüften Bestand wie auf der Startseite.</p>
   <section aria-labelledby="cantonEventsHeading"><div class="municipality-section-head"><div><div class="eyebrow">Geprüfte Termine</div><h2 id="cantonEventsHeading">Kommende Events im Kanton</h2></div></div><div class="canton-events" id="cantonEvents"></div></section>
 </main>
 <footer><b>WasGehtHeute<span class="pink">.ch</span></b><p><a href="index.html">Startseite</a> · <a href="kantone.html">Alle Kantone</a></p></footer>
-<script src="events-1.js"></script><script src="events-2.js"></script><script src="events-3.js"></script><script src="events-nightlife.js"></script><script src="events-nightlife-extra.js"></script><script src="events-update-2026-08-24.js"></script><script src="events-cantons-2026-08-25.js"></script><script src="events-sargans-mels.js"></script><script src="events-switzerland-2026-08-25.js"></script><script src="events-localcities.js?v=1"></script><script src="cantons.js"></script><script src="municipalities-2026.js?v=1"></script><script src="localities-2026.js?v=1"></script><script src="canton-detail.js?v=4"></script>
+<script src="event-sources.js?v=1"></script><script src="cantons.js"></script><script src="municipalities-2026.js?v=1"></script><script src="localities-2026.js?v=1"></script><script src="canton-detail.js?v=4"></script>
 </body>
 </html>
