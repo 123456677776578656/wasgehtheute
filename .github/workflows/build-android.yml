@@ -2,6 +2,11 @@ name: Android App Bundle bauen
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "android/**"
+      - ".github/workflows/build-android.yml"
+      - ".github/workflows/build-android-release.yml"
   push:
     branches: [main]
     paths:
