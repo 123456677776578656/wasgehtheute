@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WasGehtHeute</string>
+    <string name="launch_url">https://123456677776578656.github.io/wasgehtheute/</string>
+    <string name="asset_statements">[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"web","site":"https://123456677776578656.github.io"}}]</string>
+</resources>

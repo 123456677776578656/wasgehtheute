@@ -1,0 +1,20 @@
+App-Name: WasGehtHeute
+
+Kurze Beschreibung:
+Entdecke geprüfte Events, Märkte, Konzerte, Feste und Nightlife in der Schweiz.
+
+Vollständige Beschreibung:
+WasGehtHeute hilft dir, Veranstaltungen in deiner Region schnell zu entdecken. Finde Events für heute, heute Abend und das Wochenende – von Konzerten und Festen bis zu Märkten, Kultur und Nightlife.
+
+Die wichtigsten Funktionen:
+• Events nach Ort, Kanton, Datum und Kategorie entdecken
+• Veranstaltungen in deiner Nähe finden
+• Nightlife, Konzerte, Märkte, Feste und weitere Kategorien
+• Favoriten ohne Konto speichern
+• Offizielle Quellen und geprüfte Veranstaltungsangaben
+• Routen, Ticketlinks und Eventdetails direkt öffnen
+
+WasGehtHeute übernimmt Termine aus offiziellen und geprüften Quellen. Veranstaltungen können sich kurzfristig ändern. Prüfe bei wichtigen Veranstaltungen zusätzlich die verlinkte Originalquelle.
+
+Kategorie: Veranstaltungen
+Sprache: Deutsch (Schweiz)
