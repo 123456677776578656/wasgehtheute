@@ -31,6 +31,7 @@ function normalizeText(s){return String(s||'').toLocaleLowerCase('de').normalize
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
 function getFavs(){try{const v=JSON.parse(localStorage.getItem(FAVORITES_KEY)||'[]');return Array.isArray(v)?v:[]}catch{return[]}}
 function eventPrice(e){if(e.price)return e.price;if((e.cats||[]).includes('Gratis'))return 'Gratis';return 'Preis siehe Quelle'}
+function isRecommendable(e){return e?.is_recommendable===true}
 function resetEmptyCopy(){if(!empty)return;const h=empty.querySelector('h3'),p=empty.querySelector('p');if(h)h.textContent='Nichts gefunden';if(p)p.textContent='Ändere Ort, Zeitraum oder Kategorie.'}
 function matchesSearch(e,term){
   const tokens=normalizeText(term).split(/\s+/).filter(Boolean);
@@ -43,7 +44,7 @@ function refreshPlaces(){
   if(!place)return;
   const current=place.value,areaValue=area?.value||'';
   const canton=window.WGH_CANTON_BY_REGION?.[areaValue];
-  const activeLocalityIds=new Set(DATA.filter(e=>e.end>=TODAY&&e.source).map(e=>window.WGH_EVENT_LOCALITY?.(e)?.id).filter(Boolean));
+  const activeLocalityIds=new Set(DATA.filter(e=>e.end>=TODAY&&isRecommendable(e)).map(e=>window.WGH_EVENT_LOCALITY?.(e)?.id).filter(Boolean));
   const localities=canton?(window.WGH_LOCALITIES_BY_CANTON?.[canton.code]||[]).filter(l=>activeLocalityIds.has(l.id)):[];
   place.innerHTML='<option value="">Alle Orte</option>';
   if(localities.length){
@@ -60,12 +61,12 @@ function card(e){
   const cats=Array.isArray(e.cats)?e.cats:[],id=eventId(e),distance=distances[id];
   const price=eventPrice(e),ticket=e.ticket?'🎟 Tickets':'ℹ Infos',label=dateLabel(e);
   const distanceHtml=Number.isFinite(distance)?`<span class="distance-chip">⌖ ${distance.toFixed(1)} km entfernt</span>`:'';
-  return `<article class="card" data-event-id="${esc(id)}"><div class="card-visual"><span class="date-badge ${isToday(e)?'today':''}">${esc(label)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${esc(e.source_type||'Quelle geprüft')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Details</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
+  return `<article class="card" data-event-id="${esc(id)}"><div class="card-visual"><span class="date-badge ${isToday(e)?'today':''}">${esc(label)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ Event & Termin geprüft${e.checked_at?' · '+esc(e.checked_at.split('-').reverse().join('.')):''}</span><span class="source-type">${esc(e.source_type||'Originalquelle')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Details</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
 }
 function topCard(e,badge){return `<article class="top-card" data-event-id="${esc(eventId(e))}"><div class="top-badge">${esc(badge)}</div><div class="top-emoji">${esc(e.emoji||'📅')}</div><div class="top-copy"><small>📍 ${esc(e.city||'')} · ${esc(e.date||e.start||'')}</small><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p>${esc(e.desc||'')}</p><a class="top-link" href="${eventUrl(e)}">Ansehen →</a></div></article>`}
 function renderHighlights(){
   if(!topGrid)return;
-  const future=DATA.filter(e=>e.end>=TODAY).sort((a,b)=>String(a.start).localeCompare(String(b.start))),[fri,sun]=thisWeekend();
+  const future=DATA.filter(e=>e.end>=TODAY&&isRecommendable(e)).sort((a,b)=>String(a.start).localeCompare(String(b.start))),[fri,sun]=thisWeekend();
   let picks=future.filter(e=>overlaps(e,fri,sun)).slice(0,3),weekend=true;
   if(!picks.length){picks=future.slice(0,3);weekend=false}
   topGrid.innerHTML=picks.map((e,i)=>topCard(e,i===0?(weekend?'Wochenend-Tipp':'Nächster Tipp'):'Empfohlen')).join('');
@@ -87,7 +88,7 @@ function currentFilteredEvents(){
   let arr=DATA.filter(e=>{
     const cats=Array.isArray(e.cats)?e.cats:[];
     if(!e.start||!e.end||e.end<TODAY)return false;
-    if(e.quality_status==='cancelled-warning')return false;
+    if(!isRecommendable(e))return false;
     if(favoritesOnly&&!favSet.has(eventId(e)))return false;
     if(activeCategory!=='Alle'&&!cats.includes(activeCategory))return false;
     if(areaValue&&e.region!==areaValue)return false;
@@ -142,7 +143,7 @@ function favoriteStateChanged(){setText('favoriteCount',getFavs().length);if(fav
 
 const catWrap=document.getElementById('categoryButtons');
 if(catWrap&&mobileFilters)topCats.forEach(cat=>{
-  const count=cat==='Alle'?DATA.filter(e=>e.end>=TODAY).length:DATA.filter(e=>e.end>=TODAY&&(e.cats||[]).includes(cat)).length;
+  const count=cat==='Alle'?DATA.filter(e=>e.end>=TODAY&&isRecommendable(e)).length:DATA.filter(e=>e.end>=TODAY&&isRecommendable(e)&&(e.cats||[]).includes(cat)).length;
   const b=document.createElement('button');b.type='button';b.className='side-btn'+(cat==='Alle'?' active':'');b.dataset.cat=cat;b.innerHTML=`<span>${categoryEmoji[cat]||'•'} ${cat}</span><small>${count}</small>`;b.onclick=()=>setCategory(cat);catWrap.appendChild(b);
   const mb=document.createElement('button');mb.type='button';mb.className='mobile-chip'+(cat==='Alle'?' active':'');mb.dataset.cat=cat;mb.textContent=`${categoryEmoji[cat]||'•'} ${cat}`;mb.onclick=()=>setCategory(cat);mobileFilters.appendChild(mb)
 });
@@ -160,7 +161,7 @@ sort?.addEventListener('change',()=>{leaveFavorites();distanceMode=false;render(
 document.getElementById('gridBtn')?.addEventListener('click',()=>{grid?.classList.remove('list-view');document.getElementById('gridBtn')?.classList.add('active');document.getElementById('listBtn')?.classList.remove('active')});
 document.getElementById('listBtn')?.addEventListener('click',()=>{grid?.classList.add('list-view');document.getElementById('listBtn')?.classList.add('active');document.getElementById('gridBtn')?.classList.remove('active')});
 
-const future=DATA.filter(e=>e.end>=TODAY&&e.quality_status!=='cancelled-warning');setText('total',future.length);setText('places',new Set(future.map(e=>e.city).filter(Boolean)).size);setText('categories',new Set(future.flatMap(e=>e.cats||[])).size);setText('lastUpdated',new Intl.DateTimeFormat('de-CH',{dateStyle:'medium',timeZone:'Europe/Zurich'}).format(new Date()));
+const future=DATA.filter(e=>e.end>=TODAY&&isRecommendable(e));setText('total',future.length);setText('places',new Set(future.map(e=>e.city).filter(Boolean)).size);setText('categories',new Set(future.flatMap(e=>e.cats||[])).size);setText('lastUpdated',new Intl.DateTimeFormat('de-CH',{dateStyle:'medium',timeZone:'Europe/Zurich'}).format(new Date()));
 function updateGlobalCounter(){
   const el=document.getElementById('globalViewCount');if(!el)return;
   const row=el.closest('.stats-row');if(row&&getComputedStyle(row).display==='none')return;
