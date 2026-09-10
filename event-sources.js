@@ -3,9 +3,9 @@ if(window.__WGH_EVENT_SOURCES_LOADED)return;
 window.__WGH_EVENT_SOURCES_LOADED=true;
 const files=[
  'events-catalog.js?v=1',
- 'event-health.js?v=5',
- 'event-quality.js?v=4',
- 'pro-event-experience.js?v=1',
+ 'event-health.js?v=6',
+ 'event-quality.js?v=5',
+ 'pro-event-experience.js?v=2',
  'stats-reliability.js?v=1'
 ];
 function tag(src){return `<script src="${src}"><\/script>`}
