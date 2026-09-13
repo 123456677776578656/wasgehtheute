@@ -2,6 +2,11 @@ plugins {
     id "com.android.application"
 }
 
+def releaseKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+def releaseKeystorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+def releaseKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+def releaseKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+
 android {
     namespace "ch.wasgehtheute.app"
     compileSdk 36
@@ -14,13 +19,27 @@ android {
         versionName "1.0.0"
     }
 
+    signingConfigs {
+        release {
+            if (releaseKeystorePath) {
+                storeFile file(releaseKeystorePath)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            if (releaseKeystorePath) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
 
 dependencies {
-    implementation "com.google.androidbrowserhelper:androidbrowserhelper:2.6.2"
+    implementation "com.google.androidbrowserhelper:androidbrowserhelper:2.7.3"
 }
