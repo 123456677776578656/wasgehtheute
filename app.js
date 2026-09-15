@@ -1,6 +1,17 @@
 const DATA=window.EVENTS||[];
 const FAVORITES_KEY='wgh_favorites_v1';
 
+const eventCardStyle=document.createElement('style');
+eventCardStyle.textContent=`
+[data-event-url]{cursor:pointer;touch-action:manipulation}
+[data-event-url]:focus-visible{outline:3px solid #ec3b93!important;outline-offset:4px}
+[data-event-url] a:focus-visible,[data-event-url] button:focus-visible{outline:2px solid #f472b6;outline-offset:2px}
+[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:42px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}
+@media(max-width:820px){[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:46px;padding:10px 12px!important}}
+`;
+document.head.appendChild(eventCardStyle);
+
+
 function swissToday(){
   const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const get=t=>parts.find(p=>p.type===t)?.value;
@@ -60,9 +71,9 @@ function card(e){
   const cats=Array.isArray(e.cats)?e.cats:[],id=eventId(e),distance=distances[id];
   const price=eventPrice(e),ticket=e.ticket?'🎟 Tickets':'ℹ Infos',label=dateLabel(e);
   const distanceHtml=Number.isFinite(distance)?`<span class="distance-chip">⌖ ${distance.toFixed(1)} km entfernt</span>`:'';
-  return `<article class="card" data-event-id="${esc(id)}"><div class="card-visual"><span class="date-badge ${isToday(e)?'today':''}">${esc(label)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${esc(e.source_type||'Quelle geprüft')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Details</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
+  return `<article class="card" data-event-id="${esc(id)}" data-event-url="${esc(eventUrl(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${esc(e.title||'Event')}"><div class="card-visual"><span class="date-badge ${isToday(e)?'today':''}">${esc(label)}</span><span class="place-badge">📍 ${esc(e.city||'Ort offen')}</span><span class="emoji">${esc(e.emoji||'📅')}</span></div><div class="card-body"><div class="verify-line"><span class="verified">✓ geprüft</span><span class="source-type">${esc(e.source_type||'Quelle geprüft')}</span></div><div class="catline">${esc(cats.slice(0,3).join(' · '))}</div><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p class="desc">${esc(e.desc||'')}</p><div class="event-facts"><span>📅 ${esc(e.date||e.start||'')}</span><span>📍 ${esc(e.city||'')}</span><span class="price-chip ${price==='Gratis'?'is-free':''}">💳 ${esc(price)}</span><span class="ticket-chip ${e.ticket?'has-ticket':''}">${ticket}</span>${distanceHtml}</div><div class="card-foot"><span class="time">🕒 ${esc(e.time||'Zeit siehe Quelle')}</span><span class="card-actions"><a class="source" href="${eventUrl(e)}">Event öffnen →</a>${e.source?`<a class="source" href="${esc(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a>`:''}</span></div></div></article>`;
 }
-function topCard(e,badge){return `<article class="top-card" data-event-id="${esc(eventId(e))}"><div class="top-badge">${esc(badge)}</div><div class="top-emoji">${esc(e.emoji||'📅')}</div><div class="top-copy"><small>📍 ${esc(e.city||'')} · ${esc(e.date||e.start||'')}</small><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p>${esc(e.desc||'')}</p><a class="top-link" href="${eventUrl(e)}">Ansehen →</a></div></article>`}
+function topCard(e,badge){return `<article class="top-card" data-event-id="${esc(eventId(e))}" data-event-url="${esc(eventUrl(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${esc(e.title||'Event')}"><div class="top-badge">${esc(badge)}</div><div class="top-emoji">${esc(e.emoji||'📅')}</div><div class="top-copy"><small>📍 ${esc(e.city||'')} · ${esc(e.date||e.start||'')}</small><h3><a href="${eventUrl(e)}">${esc(e.title||'Event')}</a></h3><p>${esc(e.desc||'')}</p><a class="top-link" href="${eventUrl(e)}">Ansehen →</a></div></article>`}
 function renderHighlights(){
   if(!topGrid)return;
   const future=DATA.filter(e=>e.end>=TODAY).sort((a,b)=>String(a.start).localeCompare(String(b.start))),[fri,sun]=thisWeekend();
@@ -74,7 +85,21 @@ function renderHighlights(){
 
 function syncActiveControls(){
   document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('active',b.dataset.cat===activeCategory));
-  document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period===activePeriod));
+  
+function openEventCard(evt){
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target.closest('a,button,input,select,textarea,label'))return;
+  window.location.href=card.dataset.eventUrl;
+}
+document.addEventListener('click',openEventCard);
+document.addEventListener('keydown',evt=>{
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target!==card||!['Enter',' '].includes(evt.key))return;
+  evt.preventDefault();
+  window.location.href=card.dataset.eventUrl;
+});
+
+document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('active',b.dataset.period===activePeriod));
   document.querySelectorAll('[data-bottom]').forEach(b=>b.classList.toggle('active',!favoritesOnly&&b.dataset.bottom===activePeriod));
 }
 function syncSpecialUI(){
