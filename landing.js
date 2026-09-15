@@ -1,5 +1,16 @@
 (()=>{
 const DATA=Array.isArray(window.EVENTS)?window.EVENTS:[],U=window.WGH_EVENT_UTILS||{},root=document.getElementById('landingEvents');if(!root)return;
+
+const eventCardStyle=document.createElement('style');
+eventCardStyle.textContent=`
+[data-event-url]{cursor:pointer;touch-action:manipulation}
+[data-event-url]:focus-visible{outline:3px solid #ec3b93!important;outline-offset:4px}
+[data-event-url] a:focus-visible,[data-event-url] button:focus-visible{outline:2px solid #f472b6;outline-offset:2px}
+[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:42px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}
+@media(max-width:820px){[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:46px;padding:10px 12px!important}}
+`;
+document.head.appendChild(eventCardStyle);
+
 const mode=document.body.dataset.mode||'',cityFilter=document.body.dataset.city||'',regionFilter=document.body.dataset.region||'',categoryFilter=document.body.dataset.category||'',today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date());
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slug=s=>U.slug?U.slug(s):String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -21,7 +32,21 @@ if(cityFilter)arr=arr.filter(e=>String(e.city).toLowerCase().includes(cityFilter
 if(regionFilter)arr=arr.filter(e=>e.region===regionFilter);
 if(categoryFilter)arr=arr.filter(e=>(e.cats||[]).includes(categoryFilter));
 arr.sort((a,b)=>a.start.localeCompare(b.start)||String(a.time||'99:99').localeCompare(String(b.time||'99:99')));
-root.innerHTML=arr.slice(0,80).map(e=>{const p=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');const status=e.status&&e.status!=='confirmed'?`<span>⚠ ${esc(e.status_label||e.status)}</span>`:'';return `<article class="landing-event"><small><strong>${esc(label(e))}</strong> · 📍 ${esc(e.city)}${e.venue?` · ${esc(e.venue)}`:''}</small><h3><a href="${esc(url(e))}">${esc(e.emoji||'📅')} ${esc(e.title)}</a></h3><p>${esc(e.desc||'Weitere Angaben bei der Originalquelle.')}</p><div class="event-facts"><span>🕒 ${esc(e.time||'Zeit siehe Quelle')}</span>${p?`<span>💳 ${esc(p)}</span>`:''}${e.ticket?'<span>🎟 Tickets</span>':''}${status}</div><small class="verified">${esc(verified(e))}</small><br><a class="source" href="${esc(url(e))}">Details →</a></article>`}).join('')||'<p>Aktuell sind keine passenden kommenden bestätigten Events eingetragen.</p>';
+root.innerHTML=arr.slice(0,80).map(e=>{const p=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');const status=e.status&&e.status!=='confirmed'?`<span>⚠ ${esc(e.status_label||e.status)}</span>`:'';return `<article class="landing-event" data-event-url="${esc(url(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${esc(e.title||'Event')}"><small><strong>${esc(label(e))}</strong> · 📍 ${esc(e.city)}${e.venue?` · ${esc(e.venue)}`:''}</small><h3><a href="${esc(url(e))}">${esc(e.emoji||'📅')} ${esc(e.title)}</a></h3><p>${esc(e.desc||'Weitere Angaben bei der Originalquelle.')}</p><div class="event-facts"><span>🕒 ${esc(e.time||'Zeit siehe Quelle')}</span>${p?`<span>💳 ${esc(p)}</span>`:''}${e.ticket?'<span>🎟 Tickets</span>':''}${status}</div><small class="verified">${esc(verified(e))}</small><br><a class="source" href="${esc(url(e))}">Event öffnen →</a></article>`}).join('')||'<p>Aktuell sind keine passenden kommenden bestätigten Events eingetragen.</p>';
+
+function openEventCard(evt){
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target.closest('a,button,input,select,textarea,label'))return;
+  window.location.href=card.dataset.eventUrl;
+}
+document.addEventListener('click',openEventCard);
+document.addEventListener('keydown',evt=>{
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target!==card||!['Enter',' '].includes(evt.key))return;
+  evt.preventDefault();
+  window.location.href=card.dataset.eventUrl;
+});
+
 const count=document.getElementById('landingCount');if(count)count.textContent=arr.length;
 document.getElementById('landingJsonLd')?.remove();if(arr.length){const list={"@context":"https://schema.org","@type":"ItemList","itemListElement":arr.slice(0,20).map((e,i)=>({"@type":"ListItem","position":i+1,"item":{"@type":"Event","name":e.title,"startDate":e.start,"endDate":e.end,"eventStatus":schemaStatus(e),"eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":e.venue||e.city,"address":{"@type":"PostalAddress","addressLocality":e.city,"addressCountry":"CH"}},"url":new URL(url(e),location.href).href,"sameAs":e.source||undefined,"description":e.desc||undefined}}))};const script=document.createElement('script');script.id='landingJsonLd';script.type='application/ld+json';script.textContent=JSON.stringify(list);document.head.appendChild(script)}
 })();
