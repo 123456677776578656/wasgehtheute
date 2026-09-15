@@ -1,6 +1,17 @@
 (()=>{
 const DATA=Array.isArray(window.EVENTS)?window.EVENTS:[],U=window.WGH_EVENT_UTILS||{};
 const root=document.getElementById('nightlifeEvents'),countEl=document.getElementById('nightlifeCount'),summary=document.getElementById('nightlifeSummary');if(!root)return;
+
+const eventCardStyle=document.createElement('style');
+eventCardStyle.textContent=`
+[data-event-url]{cursor:pointer;touch-action:manipulation}
+[data-event-url]:focus-visible{outline:3px solid #ec3b93!important;outline-offset:4px}
+[data-event-url] a:focus-visible,[data-event-url] button:focus-visible{outline:2px solid #f472b6;outline-offset:2px}
+[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:42px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}
+@media(max-width:820px){[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:46px;padding:10px 12px!important}}
+`;
+document.head.appendChild(eventCardStyle);
+
 const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Zurich'}).format(new Date());
 const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -28,7 +39,21 @@ const genreMatchers={
 };
 function dateMatches(e){if(period==='all')return true;if(period==='today')return e.start<=today&&e.end>=today;if(period==='tonight'){if(!(e.start<=today&&e.end>=today))return false;const m=String(e.time||'').match(/(?:^|\D)([01]?\d|2[0-3])[:.]/);return m?Number(m[1])>=17:true}const [fri,sun]=weekend();if(period==='friday')return e.start<=fri&&e.end>=fri;if(period==='saturday'){const s=new Date(fri+'T12:00:00');s.setDate(s.getDate()+1);const sat=ymd(s);return e.start<=sat&&e.end>=sat}if(period==='weekend')return e.start<=sun&&e.end>=fri;if(period==='nextweek'){const [a,b]=nextWeek();return e.start<=b&&e.end>=a}return true}
 function statusBadge(e){if(!e.status||e.status==='confirmed')return'';const icon=e.status==='sold-out'?'⚠️':e.status==='postponed'?'↪️':'ℹ️';return `<span>${icon} ${safe(e.status_label||e.status)}</span>`}
-function card(e){const checked=(U.checkedAt?.(e)||e.checked_at||e.verified_at||'').split('-').reverse().join('.');const cats=(e.cats||[]).slice(0,4);const venue=e.venue||e.location||e.city;const price=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');return `<article class="night-card"><div class="night-kicker"><span>${safe(e.city)}</span><span>${safe(e.date||e.start)}</span></div><h2><a href="event.html?id=${encodeURIComponent(eventId(e))}">${safe(e.title)}</a></h2><div class="night-main"><b>${safe(venue)}</b><span>🕒 ${safe(e.time||'Beginn siehe Quelle')}</span></div><div class="night-tags">${cats.map(c=>`<span>${safe(c)}</span>`).join('')}${price?`<span>💳 ${safe(price)}</span>`:''}${statusBadge(e)}</div><div class="night-verify"><b>✓ Quelle geprüft</b>${checked?` · zuletzt ${safe(checked)}`:''} · ${safe(e.source_type||'geprüfte Quelle')}</div><div class="night-actions"><a class="primary" href="event.html?id=${encodeURIComponent(eventId(e))}">Details</a>${e.ticket?`<a href="${safe(e.ticket)}" target="_blank" rel="noopener noreferrer">🎟 Tickets</a>`:''}<a href="${safe(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a></div></article>`}
+function card(e){const checked=(U.checkedAt?.(e)||e.checked_at||e.verified_at||'').split('-').reverse().join('.');const cats=(e.cats||[]).slice(0,4);const venue=e.venue||e.location||e.city;const price=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');return `<article class="night-card" data-event-url="event.html?id=${encodeURIComponent(eventId(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${safe(e.title||'Event')}"><div class="night-kicker"><span>${safe(e.city)}</span><span>${safe(e.date||e.start)}</span></div><h2><a href="event.html?id=${encodeURIComponent(eventId(e))}">${safe(e.title)}</a></h2><div class="night-main"><b>${safe(venue)}</b><span>🕒 ${safe(e.time||'Beginn siehe Quelle')}</span></div><div class="night-tags">${cats.map(c=>`<span>${safe(c)}</span>`).join('')}${price?`<span>💳 ${safe(price)}</span>`:''}${statusBadge(e)}</div><div class="night-verify"><b>✓ Quelle geprüft</b>${checked?` · zuletzt ${safe(checked)}`:''} · ${safe(e.source_type||'geprüfte Quelle')}</div><div class="night-actions"><a class="primary" href="event.html?id=${encodeURIComponent(eventId(e))}">Event öffnen →</a>${e.ticket?`<a href="${safe(e.ticket)}" target="_blank" rel="noopener noreferrer">🎟 Tickets</a>`:''}<a href="${safe(e.source)}" target="_blank" rel="noopener noreferrer">Quelle ↗</a></div></article>`}
 function render(){let arr=base.filter(dateMatches);if(genre!=='all'&&genreMatchers[genre])arr=arr.filter(genreMatchers[genre]);arr.sort((a,b)=>String(a.start).localeCompare(String(b.start))||String(a.time||'99:99').localeCompare(String(b.time||'99:99')));root.innerHTML=arr.length?arr.map(card).join(''):'<div class="night-empty">Für diese Auswahl sind aktuell keine bestätigten Nightlife-Events eingetragen.</div>';if(countEl)countEl.textContent=arr.length;if(summary)summary.innerHTML=`<span><strong>${arr.length}</strong> bestätigte Nightlife-Events</span><span>Nur offizielle bzw. direkte Venue-Quellen</span>`;document.querySelectorAll('[data-night-period]').forEach(b=>b.classList.toggle('active',b.dataset.nightPeriod===period));document.querySelectorAll('[data-night-genre]').forEach(b=>b.classList.toggle('active',b.dataset.nightGenre===genre))}
+
+function openEventCard(evt){
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target.closest('a,button,input,select,textarea,label'))return;
+  window.location.href=card.dataset.eventUrl;
+}
+document.addEventListener('click',openEventCard);
+document.addEventListener('keydown',evt=>{
+  const card=evt.target.closest?.('[data-event-url]');
+  if(!card||evt.target!==card||!['Enter',' '].includes(evt.key))return;
+  evt.preventDefault();
+  window.location.href=card.dataset.eventUrl;
+});
+
 document.addEventListener('click',e=>{const p=e.target.closest('[data-night-period]');if(p){period=p.dataset.nightPeriod;render();return}const g=e.target.closest('[data-night-genre]');if(g){genre=g.dataset.nightGenre;render()}});render();
 })();
