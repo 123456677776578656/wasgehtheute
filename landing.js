@@ -3,11 +3,15 @@ const DATA=Array.isArray(window.EVENTS)?window.EVENTS:[],U=window.WGH_EVENT_UTIL
 
 const eventCardStyle=document.createElement('style');
 eventCardStyle.textContent=`
-[data-event-url]{cursor:pointer;touch-action:manipulation}
+[data-event-url]{cursor:pointer;touch-action:manipulation;position:relative;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
+[data-event-url]:hover{transform:translateY(-4px);border-color:rgba(236,59,147,.48)!important;box-shadow:0 20px 46px rgba(0,0,0,.32),0 0 0 1px rgba(236,59,147,.12)}
+[data-event-url]:active{transform:scale(.985)}
 [data-event-url]:focus-visible{outline:3px solid #ec3b93!important;outline-offset:4px}
 [data-event-url] a:focus-visible,[data-event-url] button:focus-visible{outline:2px solid #f472b6;outline-offset:2px}
-[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:42px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}
-@media(max-width:820px){[data-event-url] .source,[data-event-url] .primary,[data-event-url] .top-link{min-height:46px;padding:10px 12px!important}}
+[data-event-url] .event-open-btn,[data-event-url] .night-actions .primary,[data-event-url] > .smart-open-link{min-height:46px;display:inline-flex;align-items:center;justify-content:center;padding:10px 14px!important;border:1px solid rgba(255,255,255,.14)!important;border-radius:11px!important;background:linear-gradient(135deg,#ec3b93,#8b5cf6)!important;color:#fff!important;font-weight:950!important;text-decoration:none!important;box-shadow:0 8px 20px rgba(139,92,246,.2)}
+[data-event-url] .event-open-btn:hover,[data-event-url] .night-actions .primary:hover,[data-event-url] > .smart-open-link:hover{filter:brightness(1.12);transform:translateY(-1px)}
+@media(max-width:820px){[data-event-url]{-webkit-tap-highlight-color:rgba(236,59,147,.18)}[data-event-url] .event-open-btn,[data-event-url] .night-actions .primary,[data-event-url] > .smart-open-link{width:100%;min-height:50px;font-size:12px!important}}
+@media(prefers-reduced-motion:reduce){[data-event-url]{transition:none}[data-event-url]:hover,[data-event-url]:active{transform:none}}
 `;
 document.head.appendChild(eventCardStyle);
 
@@ -32,7 +36,7 @@ if(cityFilter)arr=arr.filter(e=>String(e.city).toLowerCase().includes(cityFilter
 if(regionFilter)arr=arr.filter(e=>e.region===regionFilter);
 if(categoryFilter)arr=arr.filter(e=>(e.cats||[]).includes(categoryFilter));
 arr.sort((a,b)=>a.start.localeCompare(b.start)||String(a.time||'99:99').localeCompare(String(b.time||'99:99')));
-root.innerHTML=arr.slice(0,80).map(e=>{const p=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');const status=e.status&&e.status!=='confirmed'?`<span>⚠ ${esc(e.status_label||e.status)}</span>`:'';return `<article class="landing-event" data-event-url="${esc(url(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${esc(e.title||'Event')}"><small><strong>${esc(label(e))}</strong> · 📍 ${esc(e.city)}${e.venue?` · ${esc(e.venue)}`:''}</small><h3><a href="${esc(url(e))}">${esc(e.emoji||'📅')} ${esc(e.title)}</a></h3><p>${esc(e.desc||'Weitere Angaben bei der Originalquelle.')}</p><div class="event-facts"><span>🕒 ${esc(e.time||'Zeit siehe Quelle')}</span>${p?`<span>💳 ${esc(p)}</span>`:''}${e.ticket?'<span>🎟 Tickets</span>':''}${status}</div><small class="verified">${esc(verified(e))}</small><br><a class="source" href="${esc(url(e))}">Event öffnen →</a></article>`}).join('')||'<p>Aktuell sind keine passenden kommenden bestätigten Events eingetragen.</p>';
+root.innerHTML=arr.slice(0,80).map(e=>{const p=e.price||((e.cats||[]).includes('Gratis')?'Gratis':'');const status=e.status&&e.status!=='confirmed'?`<span>⚠ ${esc(e.status_label||e.status)}</span>`:'';return `<article class="landing-event" data-event-url="${esc(url(e))}" tabindex="0" role="link" aria-label="Event öffnen: ${esc(e.title||'Event')}"><small><strong>${esc(label(e))}</strong> · 📍 ${esc(e.city)}${e.venue?` · ${esc(e.venue)}`:''}</small><h3><a href="${esc(url(e))}">${esc(e.emoji||'📅')} ${esc(e.title)}</a></h3><p>${esc(e.desc||'Weitere Angaben bei der Originalquelle.')}</p><div class="event-facts"><span>🕒 ${esc(e.time||'Zeit siehe Quelle')}</span>${p?`<span>💳 ${esc(p)}</span>`:''}${e.ticket?'<span>🎟 Tickets</span>':''}${status}</div><small class="verified">${esc(verified(e))}</small><br><a class="source event-open-btn" href="${esc(url(e))}">Event ansehen →</a></article>`}).join('')||'<p>Aktuell sind keine passenden kommenden bestätigten Events eingetragen.</p>';
 
 function openEventCard(evt){
   const card=evt.target.closest?.('[data-event-url]');
