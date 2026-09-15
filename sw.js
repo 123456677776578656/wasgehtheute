@@ -1,4 +1,4 @@
-const CACHE='wasgehtheute-v46';
+const CACHE='wasgehtheute-v47';
 const CORE=[
  './','./index.html','./offline.html','./manifest.webmanifest','./icon.svg',
  './style.css','./professional.css','./enhancements.css','./mobile-fix.css','./accessibility.css','./app-shell.css','./mockup.css','./compact-feed.css','./quick-regions.css','./performance.css','./quality.css','./mobile-polish.css','./professional-upgrade.css','./nightlife.css',
