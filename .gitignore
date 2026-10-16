@@ -1,0 +1,4 @@
+# Android signing material must never be committed.
+*.jks
+*.keystore
+android/key.properties
