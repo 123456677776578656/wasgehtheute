@@ -1,0 +1,73 @@
+name: Signiertes Android App Bundle bauen
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_KEYSTORE_PATH: /tmp/wasgehtheute-signing/upload-keystore.jks
+
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v5
+
+      - name: Java 17 einrichten
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle einrichten
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Signier-Secrets prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          for variable in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!variable}" ]]; then
+              echo "Fehlendes GitHub-Secret: ${variable}" >&2
+              exit 1
+            fi
+          done
+
+      - name: Upload-Keystore bereitstellen
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$(dirname "$ANDROID_KEYSTORE_PATH")"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          chmod 600 "$ANDROID_KEYSTORE_PATH"
+
+      - name: Signiertes App Bundle bauen
+        working-directory: android
+        run: gradle :app:bundleRelease --stacktrace
+
+      - name: Signatur prüfen
+        shell: bash
+        run: |
+          set -euo pipefail
+          jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Release-Datei benennen
+        shell: bash
+        run: cp android/app/build/outputs/bundle/release/app-release.aab wasgehtheute-v1.0.0.aab
+
+      - name: Signiertes App Bundle bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasgehtheute-android-aab-signed
+          path: wasgehtheute-v1.0.0.aab
+          if-no-files-found: error
+          retention-days: 14
